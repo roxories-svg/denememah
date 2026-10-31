@@ -1,5 +1,6 @@
 import React from 'react';
 import { BookOpen, CheckCircle, Bookmark, ArrowRight, Sparkles, Trash2, Image } from 'lucide-react';
+import ImageLightbox from './ImageLightbox';
 
 export default function QuestionCard({ 
   question, 
@@ -98,12 +99,13 @@ export default function QuestionCard({
         {/* Thumbnail if uploaded image exists */}
         {question.imageUrl && (
           <div className="mb-3 w-full rounded-xl border border-slate-800 bg-slate-950 relative">
-            <img
+            <ImageLightbox
               src={question.imageUrl}
               alt={question.title}
               className="w-full max-w-full h-auto object-contain rounded-xl"
+              triggerClassName="block w-full cursor-zoom-in"
             />
-            <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-950/80 text-cyan-300 font-mono flex items-center gap-1 border border-slate-800">
+            <span className="pointer-events-none absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-950/80 text-cyan-300 font-mono flex items-center gap-1 border border-slate-800">
               <Image className="w-3 h-3" /> Görselli
             </span>
           </div>

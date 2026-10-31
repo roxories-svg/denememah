@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle2, Award, HelpCircle, RotateCcw, FileText, ChevronLeft, ChevronRight, Clock, AlertCircle } from 'lucide-react';
 import { incrementInteractiveTestCounter, saveInteractiveTestResult } from '../firebase';
+import ImageLightbox from './ImageLightbox';
 
 function getDeadlineTime(value) {
   try {
@@ -182,11 +183,12 @@ export default function ExamTestModal({
       </div>
       <div className="flex-1 min-h-0 w-full min-w-0 max-w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
         {imageUrl ? (
-          <img
+          <ImageLightbox
             key={`${safeCurrentPage}-${imageUrl}`}
             src={imageUrl}
             alt={`Test kitapçığı ${safeCurrentPage + 1}. sayfa`}
-            className="w-full max-w-full h-auto object-contain rounded-lg border border-slate-800 shadow-lg animate-fadeIn"
+            triggerClassName="w-full cursor-zoom-in"
+            className="w-full max-w-full h-auto rounded-lg border border-slate-800 object-contain shadow-lg animate-fadeIn"
           />
         ) : (
           <div className="text-center py-16 text-slate-500 text-xs space-y-2">

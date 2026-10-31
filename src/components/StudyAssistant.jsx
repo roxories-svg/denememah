@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bot, X, Send, Sparkles, RotateCcw, MessageCircle, LoaderCircle, Paperclip } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import ImageLightbox from './ImageLightbox';
 
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 const SYSTEM_INSTRUCTION = 'Sen Türkçe konuşan fizik öğretmeni asistanısın. Fizik sorularında cevabı doğrudan vermeden önce verilenleri ve isteneni belirle, formül ve mantığı açıkla, kısa adımlarla rehberlik et. Fotoğraf bulanıksa okunmayan yeri belirt. Portal sorularında test deadline/otomatik kilit, PDF indirme ve Google Drive kurallarını açıkla; bilmediğin ayrıntıyı uydurma.';
@@ -202,7 +203,12 @@ export default function StudyAssistant() {
                 }`}>
                     {message.imageDataUrl && (
                       <div className="mb-2 space-y-1">
-                        <img src={message.imageDataUrl} alt="Gönderilen soru görseli" className="w-full max-w-full h-auto rounded-xl object-contain border border-slate-900/20" />
+                        <ImageLightbox
+                          src={message.imageDataUrl}
+                          alt="Gönderilen soru görseli"
+                          className="w-full max-w-full h-auto rounded-xl border border-slate-900/20 object-contain"
+                          triggerClassName="block w-full cursor-zoom-in"
+                        />
                         {message.imageName && <span className="block max-w-full truncate text-[10px] opacity-70">{message.imageName}</span>}
                       </div>
                     )}
