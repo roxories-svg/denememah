@@ -180,13 +180,13 @@ export default function ExamTestModal({
           </button>
         </div>
       </div>
-      <div className="flex-1 w-full min-w-0 max-w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
+      <div className="flex-1 min-h-0 w-full min-w-0 max-w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
         {imageUrl ? (
           <img
             key={`${safeCurrentPage}-${imageUrl}`}
             src={imageUrl}
             alt={`Test kitapçığı ${safeCurrentPage + 1}. sayfa`}
-            className="max-h-[65vh] max-w-full w-auto object-contain rounded-lg border border-slate-800 shadow-lg animate-fadeIn"
+            className="w-full max-w-full h-auto object-contain rounded-lg border border-slate-800 shadow-lg animate-fadeIn"
           />
         ) : (
           <div className="text-center py-16 text-slate-500 text-xs space-y-2">

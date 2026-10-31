@@ -210,7 +210,7 @@ export default function TeacherTestModal({ isOpen, onClose }) {
                   <label className="w-full flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-lg cursor-pointer bg-slate-900/50 transition">
                     {page.preview ? (
                       <div className="space-y-2 text-center">
-                        <img src={page.preview} alt={`${pageIndex + 1}. sayfa önizleme`} className="max-h-48 mx-auto rounded-lg border border-slate-700 object-contain" />
+                        <img src={page.preview} alt={`${pageIndex + 1}. sayfa önizleme`} className="w-full max-w-full h-auto rounded-lg border border-slate-700 object-contain" />
                         <span className="text-[11px] text-cyan-400 font-medium">Değiştirmek için tıklayın</span>
                       </div>
                     ) : (

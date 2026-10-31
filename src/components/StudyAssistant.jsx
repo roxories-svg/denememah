@@ -202,7 +202,7 @@ export default function StudyAssistant() {
                 }`}>
                     {message.imageDataUrl && (
                       <div className="mb-2 space-y-1">
-                        <img src={message.imageDataUrl} alt="Gönderilen soru görseli" className="max-h-40 max-w-full rounded-xl object-contain border border-slate-900/20" />
+                        <img src={message.imageDataUrl} alt="Gönderilen soru görseli" className="w-full max-w-full h-auto rounded-xl object-contain border border-slate-900/20" />
                         {message.imageName && <span className="block max-w-full truncate text-[10px] opacity-70">{message.imageName}</span>}
                       </div>
                     )}

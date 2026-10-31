@@ -97,11 +97,11 @@ export default function QuestionCard({
 
         {/* Thumbnail if uploaded image exists */}
         {question.imageUrl && (
-          <div className="mb-3 h-28 w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 relative">
+          <div className="mb-3 w-full rounded-xl border border-slate-800 bg-slate-950 relative">
             <img
               src={question.imageUrl}
               alt={question.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full max-w-full h-auto object-contain rounded-xl"
             />
             <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-950/80 text-cyan-300 font-mono flex items-center gap-1 border border-slate-800">
               <Image className="w-3 h-3" /> Görselli
