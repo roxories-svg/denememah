@@ -8,4 +8,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/', // Vercel ve statik barındırma servisleri için kök dizin tanımı
 })
