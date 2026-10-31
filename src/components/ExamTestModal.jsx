@@ -150,23 +150,23 @@ export default function ExamTestModal({
 
   const stats = calculateScore();
   const bookletViewer = (
-    <div className="lg:col-span-7 min-w-0 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 flex flex-col min-h-[350px]">
-      <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+    <div className="w-full max-w-full lg:col-span-7 min-w-0 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 flex flex-col min-h-[300px] sm:min-h-[350px] overflow-hidden">
+      <div className="w-full min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <span className="text-xs font-semibold text-cyan-400 flex items-center gap-1.5 min-w-0">
           <FileText className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">Soru Kitapçığı</span>
         </span>
-        <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2 shrink-0">
+        <div className="w-full min-w-0 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5 sm:w-auto sm:flex sm:justify-start sm:gap-2 sm:shrink-0">
           <button
             type="button"
             onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
             disabled={safeCurrentPage === 0}
             aria-label="Önceki Sayfa"
-            className="px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center gap-1"
+            className="w-full min-w-0 min-h-10 px-1 sm:px-2 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-0.5 sm:gap-1"
           >
-            <ChevronLeft className="w-3.5 h-3.5" /><span className="hidden sm:inline">Önceki Sayfa</span><span className="sm:hidden">Önceki</span>
+            <ChevronLeft className="w-3.5 h-3.5 shrink-0" /><span className="hidden sm:inline truncate">Önceki Sayfa</span><span className="sm:hidden truncate">Önceki</span>
           </button>
-          <span className="text-[11px] font-mono text-slate-300 whitespace-nowrap">
+          <span className="text-[10px] sm:text-[11px] font-mono text-slate-300 whitespace-nowrap text-center">
             Sayfa {totalPages ? safeCurrentPage + 1 : 0} / {totalPages}
           </span>
           <button
@@ -174,13 +174,13 @@ export default function ExamTestModal({
             onClick={() => setCurrentPage((page) => Math.min(totalPages - 1, page + 1))}
             disabled={safeCurrentPage >= totalPages - 1}
             aria-label="Sonraki Sayfa"
-            className="px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center gap-1"
+            className="w-full min-w-0 min-h-10 px-1 sm:px-2 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-0.5 sm:gap-1"
           >
-            <span className="hidden sm:inline">Sonraki Sayfa</span><span className="sm:hidden">Sonraki</span><ChevronRight className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline truncate">Sonraki Sayfa</span><span className="sm:hidden truncate">Sonraki</span><ChevronRight className="w-3.5 h-3.5 shrink-0" />
           </button>
         </div>
       </div>
-      <div className="flex-1 w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
+      <div className="flex-1 w-full min-w-0 max-w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
         {imageUrl ? (
           <img
             key={`${safeCurrentPage}-${imageUrl}`}
@@ -202,22 +202,22 @@ export default function ExamTestModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 overflow-y-auto bg-slate-950/90 backdrop-blur-md animate-fadeIn">
       <div className="fixed inset-0 -z-10" onClick={onClose} />
 
-      <div className="relative w-full max-w-5xl max-h-[95vh] flex flex-col bg-slate-900 border border-cyan-500/40 rounded-3xl shadow-2xl shadow-cyan-950/40 overflow-hidden my-auto">
+      <div className="relative w-full min-w-0 max-w-5xl max-h-[95vh] flex flex-col bg-slate-900 border border-cyan-500/40 rounded-2xl sm:rounded-3xl shadow-2xl shadow-cyan-950/40 overflow-hidden my-auto">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 bg-slate-900/95">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold">
+        <div className="min-w-0 flex items-start sm:items-center justify-between gap-2 p-3 sm:p-5 border-b border-slate-800 bg-slate-900/95">
+          <div className="min-w-0 flex items-start sm:items-center gap-2 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl sm:rounded-2xl bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold">
               <FileText className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span>{examTitle}</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+            <div className="min-w-0">
+              <h2 className="min-w-0 max-w-full text-sm sm:text-lg font-bold text-white flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                <span className="min-w-0 break-words">{examTitle}</span>
+                <span className="max-w-full text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
                   Sanal Optik Formu
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="hidden sm:block text-xs text-slate-400">
                 Soruları inceleyin ve yandaki / alttaki sanal optik formuna cevaplarınızı işaretleyin.
               </p>
             </div>
@@ -225,17 +225,17 @@ export default function ExamTestModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+            className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body: Sol Taraf Soru Görseli, Sağ Taraf Sanal Optik */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="w-full min-w-0 max-w-full p-3 sm:p-6 overflow-y-auto overflow-x-hidden flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
           {testData.deadline && (
             <div
-              className={`col-span-12 p-3 sm:p-4 rounded-2xl border shadow-inner transition-colors duration-500 ${
+              className={`w-full min-w-0 max-w-full lg:col-span-12 p-3 sm:p-4 rounded-2xl border shadow-inner transition-colors duration-500 ${
                 isExpired
                   ? 'bg-rose-950/20 border-rose-500/35 text-rose-200'
                   : countdownUrgency === 'critical'
@@ -247,12 +247,12 @@ export default function ExamTestModal({
               role="status"
               aria-live="off"
             >
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2">
                 <span className={`text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 uppercase tracking-wider ${isExpired ? 'text-rose-300' : countdownUrgency === 'critical' ? 'text-rose-300' : countdownUrgency === 'warning' ? 'text-orange-300' : 'text-slate-400'}`}>
                   {isExpired ? <AlertCircle className="w-3.5 h-3.5 text-rose-400" /> : <Clock className={`w-3.5 h-3.5 ${countdownUrgency === 'critical' ? 'text-rose-400' : countdownUrgency === 'warning' ? 'text-orange-400' : 'text-cyan-400'}`} />}
                   Kilit Geri Sayımı (Kalan Süre)
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-slate-500 font-mono text-right">
+                <span className="min-w-0 text-[10px] sm:text-[11px] text-slate-500 font-mono sm:text-right break-words">
                   Bitiş: {deadlineTime ? new Date(deadlineTime).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Belirtilmedi'}
                 </span>
               </div>
@@ -261,7 +261,7 @@ export default function ExamTestModal({
                   <AlertCircle className="w-4 h-4" /> Bu sınavın süresi sona ermiştir.
                 </div>
               ) : (
-                <div className="grid grid-cols-4 gap-2 text-center mt-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center mt-2">
                   {[
                     ['Gün', countdown.days],
                     ['Saat', countdown.hours],
@@ -269,7 +269,7 @@ export default function ExamTestModal({
                     ['Saniye', countdown.seconds]
                   ].map(([label, value]) => (
                     <div key={label} className={`min-w-0 p-1.5 sm:p-2 rounded-xl bg-slate-900/90 border shadow-sm transition-colors duration-500 ${countdownUrgency === 'critical' ? 'border-rose-500/40' : countdownUrgency === 'warning' ? 'border-orange-500/35' : 'border-cyan-500/30'}`}>
-                      <span className={`block text-base sm:text-lg font-extrabold font-mono tabular-nums ${label === 'Saniye' && countdownUrgency === 'normal' ? 'text-orange-400 animate-pulse' : countdownUrgency === 'critical' ? 'text-rose-300' : countdownUrgency === 'warning' ? 'text-orange-300' : 'text-cyan-300'}`}>
+                      <span className={`block text-sm sm:text-lg font-extrabold font-mono tabular-nums ${label === 'Saniye' && countdownUrgency === 'normal' ? 'text-orange-400 animate-pulse' : countdownUrgency === 'critical' ? 'text-rose-300' : countdownUrgency === 'warning' ? 'text-orange-300' : 'text-cyan-300'}`}>
                         {String(value).padStart(2, '0')}
                       </span>
                       <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-medium">{label}</span>
@@ -285,12 +285,12 @@ export default function ExamTestModal({
               {bookletViewer}
 
               {/* Sağ Alan: Sanal Optik Formu (Tüm Sorular Toplu İşaretleme) */}
-              <div className="lg:col-span-5 bg-slate-950 p-4 sm:p-5 rounded-2xl border border-cyan-500/30 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <div className="w-full min-w-0 max-w-full lg:col-span-5 bg-slate-950 p-3 sm:p-5 rounded-2xl border border-cyan-500/30 space-y-4 shadow-xl overflow-hidden">
+                <div className="min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <span className="min-w-0 text-[11px] sm:text-xs font-bold text-white uppercase tracking-wider flex flex-wrap items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" /> Sanal Optik Cevap Formu
                   </span>
-                  <span className="text-xs font-mono text-cyan-300">
+                  <span className="self-start sm:self-auto px-2 py-1 rounded-lg bg-cyan-950/30 border border-cyan-500/20 text-[11px] sm:text-xs font-mono text-cyan-300 whitespace-nowrap">
                     {Object.keys(selectedAnswers).length} / {totalQCount} İşaretlendi
                   </span>
                 </div>
@@ -298,12 +298,12 @@ export default function ExamTestModal({
                 {/* Soru Satırları ve Şık Baloncukları */}
                 <div className="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
                   {Array.from({ length: totalQCount }).map((_, qIdx) => (
-                    <div key={qIdx} className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition">
-                      <span className="text-xs font-bold text-slate-300 w-12 font-mono">
+                    <div key={qIdx} className="w-full min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition">
+                      <span className="text-xs font-bold text-slate-300 font-mono">
                         {qIdx + 1}. Soru
                       </span>
 
-                      <div className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-full sm:w-auto min-w-0 grid grid-cols-5 gap-1.5 sm:gap-2">
                         {optionLabels.map((optLabel, optIdx) => {
                           const isSelected = selectedAnswers[qIdx] === optIdx;
                           return (
@@ -311,7 +311,7 @@ export default function ExamTestModal({
                               key={optIdx}
                               onClick={() => handleSelectOption(qIdx, optIdx)}
                               disabled={isExpired}
-                              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs font-bold transition flex items-center justify-center cursor-pointer disabled:cursor-not-allowed ${
+                              className={`w-full min-w-0 h-10 sm:w-9 sm:h-9 rounded-full text-sm font-bold transition flex items-center justify-center cursor-pointer disabled:cursor-not-allowed ${
                                 isSelected
                                   ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-950 font-extrabold scale-110 border border-cyan-300'
                                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700'
@@ -333,7 +333,7 @@ export default function ExamTestModal({
                 <button
                   onClick={handleSubmitAnswers}
                   disabled={isSavingResult || isExpired}
-                  className="w-full py-3 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full min-w-0 min-h-12 px-4 py-3 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer mt-2 mb-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>{isSavingResult ? 'Sonuç Kaydediliyor...' : 'Optik Formu Gönder'}</span>
