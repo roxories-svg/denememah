@@ -224,7 +224,7 @@ export default function ExamTestModal({
   const classRank = getRankingPosition('class');
   const schoolRank = getRankingPosition('school');
   const bookletViewer = (
-    <div className="w-full max-w-full lg:col-span-7 min-w-0 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 flex flex-col min-h-[300px] sm:min-h-[350px] overflow-hidden">
+    <div className="w-full max-w-full lg:col-span-7 min-w-0 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 flex flex-col h-[58dvh] sm:h-[52dvh] lg:h-[min(68vh,620px)] lg:min-h-[350px] overflow-hidden">
       <div className="w-full min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <span className="text-xs font-semibold text-cyan-400 flex items-center gap-1.5 min-w-0">
           <FileText className="w-3.5 h-3.5 shrink-0" />
@@ -254,14 +254,14 @@ export default function ExamTestModal({
           </button>
         </div>
       </div>
-      <div className="flex-1 min-h-0 w-full min-w-0 max-w-full flex items-center justify-center overflow-auto rounded-xl bg-slate-900/50 p-2">
+      <div className="flex-1 min-h-0 w-full min-w-0 max-w-full flex items-start sm:items-center justify-center overflow-auto overscroll-contain rounded-xl bg-slate-900/50 p-2">
         {imageUrl ? (
           <ImageLightbox
             key={`${safeCurrentPage}-${imageUrl}`}
             src={imageUrl}
             alt={`Test kitapçığı ${safeCurrentPage + 1}. sayfa`}
             triggerClassName="w-full cursor-zoom-in"
-            className="w-full max-w-full h-auto rounded-lg border border-slate-800 object-contain shadow-lg animate-fadeIn"
+            className="block w-full max-w-full h-auto rounded-lg border border-slate-800 object-contain shadow-lg animate-fadeIn"
           />
         ) : (
           <div className="text-center py-16 text-slate-500 text-xs space-y-2">
@@ -274,10 +274,10 @@ export default function ExamTestModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 overflow-y-auto bg-slate-950/90 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-0 sm:p-6 bg-slate-950/90 backdrop-blur-md animate-fadeIn">
       <div className="fixed inset-0 -z-10" onClick={onClose} />
 
-      <div className="relative w-full min-w-0 max-w-5xl max-h-[95vh] flex flex-col bg-slate-900 border border-cyan-500/40 rounded-2xl sm:rounded-3xl shadow-2xl shadow-cyan-950/40 overflow-hidden my-auto">
+      <div className="relative w-full min-w-0 max-w-5xl h-[100dvh] sm:h-[95vh] max-h-[100dvh] sm:max-h-[95vh] flex flex-col bg-slate-900 border-0 sm:border border-cyan-500/40 rounded-none sm:rounded-3xl shadow-2xl shadow-cyan-950/40 overflow-hidden my-auto">
         
         {/* Header */}
         <div className="min-w-0 flex items-start sm:items-center justify-between gap-2 p-3 sm:p-5 border-b border-slate-800 bg-slate-900/95">
@@ -307,7 +307,7 @@ export default function ExamTestModal({
         </div>
 
         {/* Content Body: Sol Taraf Soru Görseli, Sağ Taraf Sanal Optik */}
-        <div className="w-full min-w-0 max-w-full p-3 sm:p-6 overflow-y-auto overflow-x-hidden flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+        <div className="w-full min-w-0 max-w-full min-h-0 flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain overflow-x-hidden grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
           {testData.deadline && (
             <div
               className={`w-full min-w-0 max-w-full lg:col-span-12 p-3 sm:p-4 rounded-2xl border shadow-inner transition-colors duration-500 ${
@@ -360,7 +360,7 @@ export default function ExamTestModal({
               {bookletViewer}
 
               {/* Sağ Alan: Sanal Optik Formu (Tüm Sorular Toplu İşaretleme) */}
-              <div className="w-full min-w-0 max-w-full lg:col-span-5 bg-slate-950 p-3 sm:p-5 rounded-2xl border border-cyan-500/30 space-y-4 shadow-xl overflow-hidden">
+              <div className="w-full min-w-0 max-w-full lg:col-span-5 lg:sticky lg:top-0 lg:max-h-[calc(95vh-8rem)] lg:flex lg:flex-col bg-slate-950 p-3 sm:p-5 rounded-2xl border border-cyan-500/30 space-y-4 shadow-xl overflow-hidden">
                 <div className="min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                   <span className="min-w-0 text-[11px] sm:text-xs font-bold text-white uppercase tracking-wider flex flex-wrap items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" /> Sanal Optik Cevap Formu
@@ -371,7 +371,7 @@ export default function ExamTestModal({
                 </div>
 
                 {/* Soru Satırları ve Şık Baloncukları */}
-                <div className="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-[50vh] lg:min-h-0 lg:flex-1 overflow-y-auto overscroll-contain pr-1">
                   {Array.from({ length: totalQCount }).map((_, qIdx) => (
                     <div key={qIdx} className="w-full min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition">
                       <span className="text-xs font-bold text-slate-300 font-mono">
