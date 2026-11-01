@@ -139,7 +139,8 @@ export function subscribeToStudentAccounts(callback) {
     return onSnapshot(collection(db, 'student_accounts'), (snapshot) => {
       callback(snapshot.docs.map((docSnap) => ({
         id: docSnap.id,
-        gradeClass: docSnap.data().gradeClass
+        ...docSnap.data(),
+        gradeClass: normalizeGradeClass(docSnap.data().gradeClass, 'Belirtilmedi')
       })));
     }, (error) => {
       console.error('Öğrenci kayıtları alınamadı:', error);

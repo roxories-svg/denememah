@@ -49,10 +49,15 @@ export default function Dashboard({
   onOpenAnnouncements,
   onOpenCreateAnnouncement,
   onOpenLogs,
+  onOpenFormulas,
+  onOpenExamTest,
+  testResults = [],
   logsCount = 0
 }) {
   const isTeacher = user?.role === 'teacher';
   const [now, setNow] = useState(() => Date.now());
+  const [rankingTestId, setRankingTestId] = useState('');
+  const [rankingDetailId, setRankingDetailId] = useState('');
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -175,7 +180,48 @@ export default function Dashboard({
                 </div>
               )}
             </div>
+
           </div>
+        </div>
+      </section>
+
+      {/* 6 Güçlü Modül - Ana Sayfa Kart Izgarası */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { title: 'İnteraktif Fizik Testleri', description: 'Süreli testler ve anlık optik değerlendirme.', icon: HelpCircle, color: 'cyan', action: onOpenExamTest },
+            { title: 'Sınıf & Okul Sıralaması', description: 'Sınıf içi ve okul genelinde başarı kıyaslaması.', icon: Users, color: 'emerald', action: onOpenLogs },
+            { title: 'Yapay Zeka Soru Asistanı', description: 'Fizik sorularında akıllı adım adım destek.', icon: Sparkles, color: 'violet', action: null, soon: true },
+            { title: 'Konu Analizli Optik Form', description: 'Doğru, yanlış ve boşlarını konu bazında analiz et.', icon: ClipboardCheck, color: 'amber', action: onOpenExamTest },
+            { title: 'Mahir Hoca İle Canlı Takip', description: 'Öğrenci gelişimini ve sınav performansını takip et.', icon: Bell, color: 'rose', action: onOpenLogs },
+            { title: 'Formül & Özet Kütüphanesi', description: 'Fizik formülleri ve kısa konu özetleri tek yerde.', icon: FileText, color: 'blue', action: onOpenFormulas }
+          ].map(({ title, description, icon: Icon, color, action, soon }) => {
+            const colors = {
+              cyan: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-300 group-hover:border-cyan-400/50',
+              emerald: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300 group-hover:border-emerald-400/50',
+              violet: 'border-violet-500/20 bg-violet-500/10 text-violet-300 group-hover:border-violet-400/50',
+              amber: 'border-amber-500/20 bg-amber-500/10 text-amber-300 group-hover:border-amber-400/50',
+              rose: 'border-rose-500/20 bg-rose-500/10 text-rose-300 group-hover:border-rose-400/50',
+              blue: 'border-blue-500/20 bg-blue-500/10 text-blue-300 group-hover:border-blue-400/50'
+            }[color];
+            return (
+              <div
+                key={title}
+                className="group relative text-left p-5 min-h-36 rounded-3xl border border-slate-800 bg-slate-900/80 overflow-hidden select-none"
+              >
+                {soon && (
+                  <span className="absolute right-4 top-4 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-violet-500 text-white border border-violet-300/40 shadow-lg shadow-violet-950/50">
+                    ÇOK YAKINDA
+                  </span>
+                )}
+                <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center mb-4 transition ${colors}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-white pr-20">{title}</h3>
+                <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">{description}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -214,9 +260,35 @@ export default function Dashboard({
                 const viewsCount = Number(test.views) || 0;
                 const solveCount = Number(test.solveCount) || 0;
                 const testId = typeof test.id === 'string' || typeof test.id === 'number' ? test.id : index;
+                const participantsMap = new Map();
+                if (isTeacher) {
+                  (Array.isArray(testResults) ? testResults : []).forEach((result) => {
+                    if (result?.testId && String(result.testId) !== String(testId)) return;
+                    if (!result?.testId && String(result?.testTitle || '') !== String(test.title || '')) return;
+                    const studentKey = String(result.studentEmail || result.studentUid || result.studentName || '').trim().toLowerCase();
+                    if (!studentKey) return;
+                    const previous = participantsMap.get(studentKey);
+                    if (!previous || String(result.submittedAt || '').localeCompare(String(previous.submittedAt || '')) >= 0) {
+                      participantsMap.set(studentKey, result);
+                    }
+                  });
+                }
+                const participants = Array.from(participantsMap.values()).map((result) => {
+                  const wrong = Number(result.wrongCount) || 0;
+                  const correct = Number(result.correctCount) || 0;
+                  const net = Number.isFinite(Number(result.netScore))
+                    ? Number(result.netScore)
+                    : Number((correct - (wrong / 4)).toFixed(2));
+                  return { ...result, wrongCount: wrong, correctCount: correct, netScore: net };
+                }).sort((a, b) =>
+                  b.netScore - a.netScore ||
+                  Number(b.successRate || 0) - Number(a.successRate || 0) ||
+                  a.studentName.localeCompare(b.studentName, 'tr')
+                );
 
                 return (
-                  <div key={testId} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div key={testId} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="w-full min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -267,6 +339,7 @@ export default function Dashboard({
                         )}
                       </div>
                     </div>
+                    </div>
 
                     <div className="w-full sm:w-auto flex items-center justify-end gap-2 shrink-0">
                       {isTeacher && (
@@ -293,6 +366,82 @@ export default function Dashboard({
                         </div>
                       )}
                     </div>
+
+                    {isTeacher && (
+                      <div className="w-full pt-3 border-t border-slate-800">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRankingTestId((current) => current === String(testId) ? '' : String(testId));
+                            setRankingDetailId('');
+                          }}
+                          className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-slate-950 border border-cyan-500/20 text-xs font-bold text-cyan-300 hover:border-cyan-400/40 transition"
+                        >
+                          <span>Test Katılımcıları ve Anlık Başarı Listesi ({participants.length})</span>
+                          <span>{rankingTestId === String(testId) ? 'Kapat' : 'Göster'}</span>
+                        </button>
+
+                        {rankingTestId === String(testId) && (
+                          <div className="mt-3 rounded-2xl border border-slate-800 overflow-hidden bg-slate-950">
+                            {participants.length > 0 ? (
+                              <div className="divide-y divide-slate-800">
+                                {participants.map((participant, participantIndex) => {
+                                  const participantId = String(participant.id || `${participant.studentEmail || participant.studentUid}-${participantIndex}`);
+                                  const details = Array.isArray(participant.answerDetails) ? participant.answerDetails : [];
+                                  return (
+                                    <div key={participantId}>
+                                      <button
+                                        type="button"
+                                        onClick={() => setRankingDetailId((current) => current === participantId ? '' : participantId)}
+                                        className="w-full grid grid-cols-[42px_minmax(0,1fr)_auto] sm:grid-cols-[42px_minmax(150px,1fr)_70px_70px_90px_auto] items-center gap-2 px-3 py-3 text-left hover:bg-slate-900/70 transition"
+                                      >
+                                        <span className="w-7 h-7 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-black flex items-center justify-center">{participantIndex + 1}</span>
+                                        <span className="min-w-0">
+                                          <strong className="block truncate text-xs text-white">{safeText(participant.studentName, 'Öğrenci')}</strong>
+                                          <span className="block truncate text-[10px] text-slate-500">{safeText(participant.studentEmail, '')}</span>
+                                        </span>
+                                        <span className="hidden sm:block text-xs text-center text-emerald-300">D {participant.correctCount}</span>
+                                        <span className="hidden sm:block text-xs text-center text-rose-300">Y {participant.wrongCount}</span>
+                                        <span className="text-xs text-center font-bold text-amber-300">Net {participant.netScore.toFixed(2)}</span>
+                                        <span className="hidden sm:block text-[10px] text-cyan-300">%{Number(participant.successRate) || 0}</span>
+                                      </button>
+                                      {rankingDetailId === participantId && (
+                                        <div className="px-3 pb-3">
+                                          {details.length > 0 ? (
+                                            <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+                                              {details.map((detail) => (
+                                                <div
+                                                  key={detail.questionNumber}
+                                                  title={`${detail.questionNumber}. soru: Seçilen ${detail.selectedAnswer}, Doğru ${detail.correctAnswer}`}
+                                                  className={`p-1.5 rounded-lg border text-center text-[10px] font-bold ${
+                                                    detail.status === 'correct'
+                                                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                                                      : detail.status === 'wrong'
+                                                        ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                                                        : 'bg-slate-800 border-slate-700 text-slate-400'
+                                                  }`}
+                                                >
+                                                  <span className="block">{detail.questionNumber}</span>
+                                                  <span className="block">{detail.selectedAnswer}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          ) : (
+                                            <div className="text-[11px] text-slate-500">Bu eski sonuç için soru bazlı cevap ayrıntısı bulunmuyor.</div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="p-4 text-center text-xs text-slate-500">Henüz bu testi çözen öğrenci bulunmuyor.</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}

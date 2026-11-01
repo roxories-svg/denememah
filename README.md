@@ -55,6 +55,7 @@ VITE_FIREBASE_PROJECT_ID=mahir-hocam-fizik
 VITE_FIREBASE_STORAGE_BUCKET=mahir-hocam-fizik.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=102938475612
 VITE_FIREBASE_APP_ID=1:102938475612:web:abcdef1234567890
+VITE_GEMINI_API_KEY=your_gemini_api_key
 
 # Mahir Şengün Admin E-postası
 VITE_ADMIN_EMAIL=mahirsengun@fizik.k12.tr
@@ -73,10 +74,10 @@ Tarayıcınızda `http://localhost:5173` adresine giderek portala erişebilirsin
 
 ## Yapay Zeka Asistanı (Gemini)
 
-Asistan, `@google/generative-ai` SDK'sını doğrudan istemciden kullanır. Proje kökündeki `.env` dosyasına şu değişkeni ekleyip Vite sunucusunu yeniden başlatın:
+Asistan, güncel `@google/genai` SDK'sını `ai.models.generateContent` yöntemiyle kullanır. Proje kökündeki `.env` dosyasına şu değişkeni ekleyip Vite sunucusunu yeniden başlatın:
 
 ```env
 VITE_GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Metin ve PNG/JPG/WebP soru görselleri `gemini-2.5-flash` modeline birlikte gönderilir. `VITE_` değişkenleri istemci bundle'ında görülebilir; bu nedenle bu düzen, anahtarın tarayıcı kullanıcılarına açık olmasını kabul eder. Anahtarı kısıtlayın ve kullanım/kota limitlerini Google AI Studio veya Google Cloud üzerinden ayarlayın.
+Metin ve PNG/JPG/WebP soru görselleri `gemini-3.8-flash` modeline birlikte gönderilir. `VITE_` değişkenleri istemci bundle'ında görülebilir; bu nedenle bu düzen, anahtarın tarayıcı kullanıcılarına açık olmasını kabul eder. Anahtarı kısıtlayın ve kullanım/kota limitlerini Google AI Studio veya Google Cloud üzerinden ayarlayın.

@@ -1,39 +1,65 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bot, X, Send, Sparkles, RotateCcw, MessageCircle, LoaderCircle, Paperclip } from 'lucide-react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import ImageLightbox from './ImageLightbox';
 
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
-const SYSTEM_INSTRUCTION = 'Sen Türkçe konuşan fizik öğretmeni asistanısın. Fizik sorularında cevabı doğrudan vermeden önce verilenleri ve isteneni belirle, formül ve mantığı açıkla, kısa adımlarla rehberlik et. Fotoğraf bulanıksa okunmayan yeri belirt. Portal sorularında test deadline/otomatik kilit, PDF indirme ve Google Drive kurallarını açıkla; bilmediğin ayrıntıyı uydurma.';
+const REQUEST_TIMEOUT_MS = 30_000;
+const GEMINI_MODEL = 'gemini-3.8-flash';
+const SYSTEM_INSTRUCTION = `Sen Türkçe konuşan, destekleyici ve açıklayıcı bir fizik öğretmeni ve YKS hazırlık rehberisin.
+Fizik sorularında verilenleri ve isteneni belirle; uygun kavramı ve formülü açıkla; çözümü birim kontrolüyle adım adım tamamla ve sonucu net biçimde belirt. Gerekli ara işlemleri atlama, öğrencinin seviyesine uygun bir dil kullan ve yanlış bir varsayım varsa nazikçe düzelt.
+Görseldeki metin okunmuyorsa hangi kısmın anlaşılmadığını söyle ve daha net görsel iste; okunmayan değerleri tahmin etme.
+Portal sorularında testlerin son tarih/otomatik kilit, PDF indirme ve Google Drive kurallarını açıkla. Portalın bilmediğin özelliklerini uydurma; eksik bilgi varsa bunu açıkça belirt ve netleştirme sorusu sor.
+Her soruya doğrudan ve eksiksiz yanıt ver. Yanıtı boş bırakma; emin olmadığın noktaları açıkça ifade et.`;
 
 async function askStudyAssistant(messages) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error('Gemini API anahtarı bulunamadı. Proje kökündeki .env dosyasına VITE_GEMINI_API_KEY ekleyip Vite sunucusunu yeniden başlatınız.');
+    const apiKeyError = new Error('Gemini API anahtarı yapılandırılmamış.');
+    apiKeyError.code = 'missing-api-key';
+    throw apiKeyError;
   }
 
-  const lastMessage = messages[messages.length - 1];
-  const imageMatch = lastMessage?.imageDataUrl?.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/);
-  if (lastMessage?.imageDataUrl && !imageMatch) {
-    throw new Error('Yalnızca JPG, PNG veya WebP görselleri desteklenir.');
-  }
+  const contents = messages.map((message) => {
+    const parts = [];
+    if (message.text) parts.push({ text: message.text });
 
-  const client = new GoogleGenerativeAI(apiKey);
-  const model = client.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    systemInstruction: SYSTEM_INSTRUCTION,
-    generationConfig: { temperature: 0.45, maxOutputTokens: 1200 }
+    if (message.imageDataUrl) {
+      const imageMatch = message.imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/);
+      if (!imageMatch) {
+        throw new Error('Yalnızca JPG, PNG veya WebP görselleri desteklenir.');
+      }
+      parts.push({ inlineData: { mimeType: imageMatch[1], data: imageMatch[2] } });
+    }
+
+    return {
+      role: message.role === 'assistant' ? 'model' : 'user',
+      parts
+    };
   });
-  const history = messages.slice(0, -1).map((message) => ({
-    role: message.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: message.text }]
-  }));
-  const chat = model.startChat({ history });
-  const parts = [];
-  if (lastMessage?.text) parts.push({ text: lastMessage.text });
-  if (imageMatch) parts.push({ inlineData: { mimeType: imageMatch[1], data: imageMatch[2] } });
-  const result = await chat.sendMessage(parts);
-  return result.response.text().trim();
+  const ai = new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      timeout: REQUEST_TIMEOUT_MS,
+      retryOptions: { attempts: 1 }
+    }
+  });
+  const result = await ai.models.generateContent({
+    model: GEMINI_MODEL,
+    contents,
+    config: {
+      systemInstruction: SYSTEM_INSTRUCTION,
+      temperature: 0.45,
+      maxOutputTokens: 4096
+    }
+  });
+  const answer = result.text?.trim();
+  if (!answer) {
+    const emptyResponseError = new Error('Gemini boş yanıt döndürdü.');
+    emptyResponseError.code = 'empty-response';
+    throw emptyResponseError;
+  }
+  return answer;
 }
 
 const starterPrompts = [
@@ -46,8 +72,14 @@ function getAssistantErrorMessage(error) {
   const code = String(error?.code || '').toLowerCase();
   const details = `${error?.message || ''} ${error?.statusText || ''}`.toLowerCase();
 
-  if (code.includes('not-found') || details.includes('not found')) {
-    return 'Asistan servisi henüz yayına alınmamış. Lütfen daha sonra tekrar deneyiniz.';
+  if (code === 'missing-api-key') {
+    return 'Gemini anahtarı bulunamadı. Proje kökündeki .env dosyasına VITE_GEMINI_API_KEY ekleyip Vite sunucusunu yeniden başlatınız.';
+  }
+  if (code === 'empty-response') {
+    return 'Asistan bu kez yanıt oluşturamadı. Sorunu yeniden deneyebilir veya farklı şekilde ifade edebilirsin.';
+  }
+  if (code.includes('not-found') || details.includes('not found') || error?.status === 404) {
+    return `Gemini isteği bulunamadı (404). API anahtarının Gemini API erişimini ve ${GEMINI_MODEL} modelinin kullanılabilirliğini kontrol ediniz.`;
   }
   if (code.includes('resource-exhausted') || error?.status === 429 || details.includes('quota')) {
     return 'Asistan şu anda yoğun. Biraz bekleyip yeniden deneyebilirsin.';
@@ -55,7 +87,16 @@ function getAssistantErrorMessage(error) {
   if (error?.status === 401 || error?.status === 403 || details.includes('api key') || details.includes('api_key_invalid')) {
     return 'Gemini anahtarı veya model erişimi doğrulanamadı. Yapılandırmayı kontrol edip tekrar deneyiniz.';
   }
-  if (code.includes('internal') || code.includes('unavailable') || details.includes('network')) {
+  if (
+    error?.name === 'GoogleGenerativeAIAbortError' ||
+    error?.status === 408 ||
+    error?.status >= 500 ||
+    code.includes('internal') ||
+    code.includes('unavailable') ||
+    details.includes('network') ||
+    details.includes('fetch failed') ||
+    details.includes('failed to fetch')
+  ) {
     return 'Asistan servisine şu anda ulaşılamıyor. Bağlantıyı kontrol edip biraz sonra yeniden deneyiniz.';
   }
   return 'Yanıt alınırken bir sorun oluştu. Lütfen biraz sonra tekrar deneyiniz.';
@@ -119,10 +160,9 @@ export default function StudyAssistant() {
       }]);
     } catch (requestError) {
       console.error('Yapay zeka asistanı yanıt veremedi:', {
+        name: requestError?.name,
         code: requestError?.code,
-        status: requestError?.status,
-        message: requestError?.message,
-        error: requestError
+        status: requestError?.status
       });
       setError(getAssistantErrorMessage(requestError));
     } finally {
@@ -166,6 +206,9 @@ export default function StudyAssistant() {
       setError('Görsel okunamadı. Lütfen tekrar deneyiniz.');
     }
   };
+
+  // Yapay zekâ modülü şimdilik tamamen pasif tutulur.
+  return null;
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[80] flex flex-col items-end gap-3 max-w-[calc(100vw-2rem)]">

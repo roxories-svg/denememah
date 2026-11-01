@@ -50,10 +50,26 @@ function formatLogTime(log) {
   }
 }
 
+function formatRegistrationTime(value) {
+  try {
+    if (!value) return 'Kayıt tarihi bulunamadı';
+    if (typeof value === 'string' || typeof value === 'number') {
+      const date = new Date(value);
+      if (Number.isFinite(date.getTime())) return date.toLocaleString('tr-TR');
+    }
+    if (value && typeof value.toDate === 'function') {
+      const date = value.toDate();
+      if (Number.isFinite(date.getTime())) return date.toLocaleString('tr-TR');
+    }
+  } catch {}
+  return 'Kayıt tarihi bulunamadı';
+}
+
 export default function StudentLogsModal({ isOpen, onClose, logs = [], testResults = [], studentAccounts = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClassFilter, setSelectedClassFilter] = useState('all');
   const [activeView, setActiveView] = useState('logins');
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const safeLogs = useMemo(() => {
     try {
@@ -291,7 +307,14 @@ export default function StudentLogsModal({ isOpen, onClose, logs = [], testResul
                 {filteredTestResults.map((result, index) => (
                   <article
                     key={result.id || `${result.studentEmail}-${result.testTitle}-${index}`}
-                    className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    onClick={() => setSelectedStudent({
+                      fullName: result.studentName,
+                      studentName: result.studentName,
+                      email: result.studentEmail,
+                      gradeClass: result.gradeClass,
+                      createdAt: null
+                    })}
+                    className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 hover:border-cyan-500/40 cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -345,7 +368,18 @@ export default function StudentLogsModal({ isOpen, onClose, logs = [], testResul
                 return (
                   <div
                     key={log?.id || index}
-                    className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 hover:border-slate-700 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    onClick={() => {
+                      const account = studentAccounts.find((item) =>
+                        String(item.email || '').toLowerCase() === String(studentEmail || '').toLowerCase()
+                      );
+                      setSelectedStudent(account || {
+                        fullName: studentName,
+                        email: studentEmail,
+                        gradeClass,
+                        createdAt: null
+                      });
+                    }}
+                    className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 hover:border-cyan-500/40 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">
@@ -393,6 +427,102 @@ export default function StudentLogsModal({ isOpen, onClose, logs = [], testResul
             </div>
           )}
         </div>
+
+        {/* Öğrenci Sicil ve Takip Kartı */}
+        {selectedStudent && (
+          <div className="absolute inset-0 z-30 bg-slate-950/80 backdrop-blur-sm p-4 sm:p-6 flex items-center justify-center">
+            <div className="w-full max-w-3xl max-h-full overflow-y-auto rounded-3xl border border-cyan-500/30 bg-slate-900 shadow-2xl shadow-cyan-950/30">
+              <div className="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 bg-slate-900/95">
+                <div>
+                  <h3 className="text-base font-bold text-white">Öğrenci Sicil ve Takip Kartı</h3>
+                  <p className="text-xs text-slate-400 mt-1">Kayıt, geçmiş test ve net karnesi</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStudent(null)}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {(() => {
+                const email = String(selectedStudent.email || '').toLowerCase();
+                const name = String(selectedStudent.fullName || selectedStudent.studentName || '').toLowerCase();
+                const account = studentAccounts.find((item) =>
+                  String(item.email || '').toLowerCase() === email ||
+                  String(item.fullName || item.studentName || item.nickname || '').toLowerCase() === name
+                ) || selectedStudent;
+                const history = safeTestResults.filter((result) =>
+                  String(result.studentEmail || '').toLowerCase() === email ||
+                  (name && String(result.studentName || '').toLowerCase() === name)
+                );
+                const totals = history.reduce((sum, result) => ({
+                  correct: sum.correct + result.correctCount,
+                  wrong: sum.wrong + result.wrongCount,
+                  empty: sum.empty + result.emptyCount
+                }), { correct: 0, wrong: 0, empty: 0 });
+                const net = Math.max(0, totals.correct - (totals.wrong / 4));
+
+                return (
+                  <div className="p-4 sm:p-5 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block">Öğrenci</span>
+                        <strong className="text-sm text-white">{safeText(account.fullName || account.studentName || name, 'Öğrenci')}</strong>
+                        <span className="block text-xs text-slate-400 mt-1">{safeText(account.email || account.studentEmail, '-')}</span>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block">Sınıf</span>
+                        <strong className="text-sm text-cyan-300">{safeText(account.gradeClass, 'Belirtilmedi')}</strong>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                        <span className="text-[10px] text-slate-500 block">Kayıt Tarihi</span>
+                        <strong className="text-xs text-white">{formatRegistrationTime(account.createdAt || selectedStudent.createdAt)}</strong>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      {[
+                        ['Toplam Test', history.length, 'text-cyan-300'],
+                        ['Doğru', totals.correct, 'text-emerald-300'],
+                        ['Yanlış', totals.wrong, 'text-rose-300'],
+                        ['Net', net.toFixed(2), 'text-amber-300']
+                      ].map(([label, value, color]) => (
+                        <div key={label} className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                          <strong className={`block text-lg ${color}`}>{value}</strong>
+                          <span className="text-[10px] text-slate-500">{label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-slate-300">Geçmiş Tüm Testler</h4>
+                      {history.length ? history.map((result, index) => (
+                        <div key={result.id || index} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <strong className="block text-xs text-white truncate">{result.testTitle}</strong>
+                            <span className="text-[10px] text-slate-500">{result.formattedTime}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-emerald-300">D {result.correctCount}</span>
+                            <span className="text-rose-300">Y {result.wrongCount}</span>
+                            <span className="text-amber-300">B {result.emptyCount}</span>
+                            <span className="text-cyan-300">%{result.successRate}</span>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-500 text-center">
+                          Bu öğrenciye ait kayıtlı test sonucu bulunmuyor.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-900/95 flex items-center justify-between text-xs text-slate-400">

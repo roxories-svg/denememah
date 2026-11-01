@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, CheckCircle2, Award, HelpCircle, RotateCcw, FileText, ChevronLeft, ChevronRight, Clock, AlertCircle } from 'lucide-react';
+import { X, CheckCircle2, Award, HelpCircle, RotateCcw, FileText, ChevronLeft, ChevronRight, Clock, AlertCircle, Trophy, Users } from 'lucide-react';
 import { incrementInteractiveTestCounter, saveInteractiveTestResult } from '../firebase';
 import ImageLightbox from './ImageLightbox';
 
@@ -28,7 +28,8 @@ export default function ExamTestModal({
   onClose, 
   examTitle = "Fizik Sınavı", 
   testData = {},
-  user
+  user,
+  testResults = []
 }) {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -123,6 +124,25 @@ export default function ExamTestModal({
     setResultSaveError('');
     try {
       const score = calculateScore();
+      const toAnswerLabel = (answer) => typeof answer === 'number'
+        ? optionLabels[answer]
+        : String(answer || '').trim().toUpperCase();
+      const answerDetails = Array.from({ length: score.total }, (_, questionIndex) => {
+        const selected = selectedAnswers[questionIndex];
+        const legacyQuestion = questionsList[questionIndex];
+        const correct = questionsList.length > 0
+          ? legacyQuestion?.correct
+          : (testData.answerKey || {})[questionIndex];
+        const selectedLabel = selected === undefined ? '-' : toAnswerLabel(selected);
+        const correctLabel = toAnswerLabel(correct);
+        return {
+          questionNumber: questionIndex + 1,
+          selectedAnswer: selectedLabel,
+          correctAnswer: correctLabel || '-',
+          status: selected === undefined ? 'empty' : selectedLabel === correctLabel ? 'correct' : 'wrong'
+        };
+      });
+      const netScore = Number((score.correct - (score.wrong / 4)).toFixed(2));
       await saveInteractiveTestResult({
         studentUid: user?.uid || '',
         studentName: user?.displayName || user?.fullName || user?.nickname || 'Öğrenci',
@@ -133,7 +153,12 @@ export default function ExamTestModal({
         correctCount: score.correct,
         wrongCount: score.wrong,
         emptyCount: score.empty,
-        successRate: score.successRate
+        successRate: score.successRate,
+        netScore,
+        answerDetails,
+        selectedAnswers: Object.fromEntries(
+          Object.entries(selectedAnswers).map(([index, answer]) => [index, toAnswerLabel(answer)])
+        )
       });
       setIsSubmitted(true);
       if (testData.id) {
@@ -150,6 +175,54 @@ export default function ExamTestModal({
   };
 
   const stats = calculateScore();
+  const latestRankingResults = (() => {
+    const matching = Array.isArray(testResults)
+      ? testResults.filter((result) => {
+          if (testData?.id && result?.testId) return result.testId === testData.id;
+          if (testData?.id) return false;
+          return !testData?.id ? String(result?.testTitle || '') === String(examTitle) : true;
+        })
+      : [];
+
+    const latestByStudent = new Map();
+    matching.forEach((result) => {
+      const key = String(result.studentEmail || result.studentUid || result.studentName || '').trim().toLowerCase();
+      if (!key) return;
+      const previous = latestByStudent.get(key);
+      if (!previous || String(result.submittedAt || '').localeCompare(String(previous.submittedAt || '')) >= 0) {
+        latestByStudent.set(key, result);
+      }
+    });
+
+    const currentKey = String(user?.email || user?.uid || user?.displayName || '').trim().toLowerCase();
+    if (currentKey && isSubmitted) {
+      latestByStudent.set(currentKey, {
+        studentEmail: user?.email || '',
+        studentUid: user?.uid || '',
+        studentName: user?.displayName || user?.fullName || user?.nickname || 'Öğrenci',
+        gradeClass: user?.gradeClass || 'Belirtilmedi',
+        successRate: stats.successRate
+      });
+    }
+
+    return Array.from(latestByStudent.values());
+  })();
+
+  const getRankingPosition = (scope) => {
+    const currentGrade = String(user?.gradeClass || '').trim();
+    const pool = scope === 'class'
+      ? latestRankingResults.filter((result) => String(result.gradeClass || '').trim() === currentGrade)
+      : latestRankingResults;
+    if (!pool.length) return null;
+    const ordered = [...pool].sort((a, b) => Number(b.successRate || 0) - Number(a.successRate || 0));
+    const currentKey = String(user?.email || user?.uid || user?.displayName || '').trim().toLowerCase();
+    const position = ordered.findIndex((result) =>
+      String(result.studentEmail || result.studentUid || result.studentName || '').trim().toLowerCase() === currentKey
+    );
+    return position >= 0 ? position + 1 : null;
+  };
+  const classRank = getRankingPosition('class');
+  const schoolRank = getRankingPosition('school');
   const bookletViewer = (
     <div className="w-full max-w-full lg:col-span-7 min-w-0 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 flex flex-col min-h-[300px] sm:min-h-[350px] overflow-hidden">
       <div className="w-full min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
@@ -372,6 +445,19 @@ export default function ExamTestModal({
                   <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800">
                     <span className="block text-2xl font-extrabold text-cyan-400">%{stats.successRate}</span>
                     <span className="text-xs text-slate-400">Başarı</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-cyan-500/20">
+                    <Users className="w-4 h-4 mx-auto text-cyan-400 mb-1" />
+                    <span className="block text-lg font-extrabold text-cyan-300">{classRank ? `${classRank}.` : '-'}</span>
+                    <span className="text-xs text-slate-400">Sınıf İçi Sıralama</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-950 border border-amber-500/20">
+                    <Trophy className="w-4 h-4 mx-auto text-amber-400 mb-1" />
+                    <span className="block text-lg font-extrabold text-amber-300">{schoolRank ? `${schoolRank}.` : '-'}</span>
+                    <span className="text-xs text-slate-400">Okul Geneli Sıralama</span>
                   </div>
                 </div>
 

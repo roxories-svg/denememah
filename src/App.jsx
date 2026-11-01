@@ -106,14 +106,22 @@ export default function App() {
     };
   }, []);
 
+  // Test sonuçlarını sonuç ekranındaki sıralamalar için tüm giriş yapmış kullanıcılar alır.
+  useEffect(() => {
+    const unsubscribeResults = subscribeToInteractiveTestResults((results) => {
+      setTestResults(Array.isArray(results) ? results : []);
+    });
+
+    return () => {
+      if (typeof unsubscribeResults === 'function') unsubscribeResults();
+    };
+  }, []);
+
   // 3. Subscribe to Student Login Logs if user is Teacher
   useEffect(() => {
     if (user?.role === 'teacher') {
       const unsubscribe = subscribeToLoginLogs((logs) => {
         setLoginLogs(logs);
-      });
-      const unsubscribeResults = subscribeToInteractiveTestResults((results) => {
-        setTestResults(Array.isArray(results) ? results : []);
       });
       const unsubscribeAccounts = subscribeToStudentAccounts((accounts) => {
         setStudentAccounts(Array.isArray(accounts) ? accounts : []);
@@ -121,7 +129,6 @@ export default function App() {
 
       return () => {
         if (typeof unsubscribe === 'function') unsubscribe();
-        if (typeof unsubscribeResults === 'function') unsubscribeResults();
         if (typeof unsubscribeAccounts === 'function') unsubscribeAccounts();
       };
     }
@@ -308,7 +315,9 @@ export default function App() {
         onOpenCreateAnnouncement={() => setIsTeacherAnnModalOpen(true)}
         onOpenLogs={() => setIsLogsModalOpen(true)}
         onOpenExamTest={() => setIsExamTestOpen(true)}
+        onOpenFormulas={() => setIsFormulasOpen(true)}
         logsCount={loginLogs.length}
+        testResults={testResults}
       />
 
       {/* PDF Viewer Modal */}
@@ -369,6 +378,7 @@ export default function App() {
         examTitle={selectedInteractiveTest?.title || 'Fizik 1. Dönem 1. Yazılı Deneme Sınavı'}
         testData={selectedInteractiveTest || {}}
         user={user}
+        testResults={testResults}
       />
 
       {/* Sınav Takvimi & Duyurular Modal */}
