@@ -456,7 +456,7 @@ export default function App() {
 
       {/* Footer */}
       <footer id="iletisim" className="mt-auto scroll-mt-28 border-t border-white/10 bg-[#05070d] py-8 text-center text-xs text-slate-500">
-        <p>© 2026-2027 {teacherProfile.portalBrand} • {teacherProfile.officialName} • Firebase Auth & Realtime Firestore</p>
+        <p>© 2026-2027 Bu platform <span className="font-semibold text-cyan-400">Roxories</span> tarafından hazırlanmıştır • {teacherProfile.officialName} • Firebase Auth & Realtime Firestore</p>
         <p className="mt-1 text-slate-600">{teacherProfile.school} • Fizik Zümre Koordinatörlüğü</p>
       </footer>
 

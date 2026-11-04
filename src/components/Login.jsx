@@ -142,7 +142,7 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
           <div className="mt-5 text-center text-xs text-slate-300">
             {isForgotPassword ? <button type="button" onClick={() => { setIsForgotPassword(false); setError(''); setSuccess(''); }} className="min-h-9 px-2 font-medium text-sky-300 transition hover:text-sky-200">Giriş ekranına dön</button> : <>{authMode === 'login' ? 'Hesabın yok mu?' : 'Zaten hesabın var mı?'} <button type="button" onClick={() => switchAuthMode(authMode === 'login' ? 'register' : 'login')} className="ml-1 font-semibold text-sky-300 transition hover:text-sky-200">{authMode === 'login' ? 'Kayıt Ol' : 'Giriş Yap'}</button></>}
           </div>
-          <p className="mt-6 text-center text-[10px] text-slate-500">© 2026-2027 {teacherProfile.portalBrand} • {teacherProfile.officialName}</p>
+          <p className="mt-6 text-center text-[10px] text-slate-500">© 2026-2027 Bu platform <span className="font-semibold text-cyan-400">Roxories</span> tarafından hazırlanmıştır • {teacherProfile.officialName}</p>
         </section>
       </div>
     </div>
