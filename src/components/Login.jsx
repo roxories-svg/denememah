@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { GraduationCap, ArrowRight, Atom, ShieldCheck, Lock, User, Mail, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
+import {
+  AlertCircle, ArrowRight, Atom, CheckCircle2, Eye, EyeOff,
+  LockKeyhole, Mail, UserRound, X
+} from 'lucide-react';
 import { teacherProfile } from '../data/teacherProfile';
 import { loginWithNickname, registerStudentWithNickname, sendStudentPasswordReset } from '../firebase';
 
 export default function Login({ onLoginSuccess, onClose, notice = '' }) {
-  const [authMode, setAuthMode] = useState('login'); // 'login' veya 'register'
-  const [role, setRole] = useState('student'); // 'student' veya 'teacher'
+  const [authMode, setAuthMode] = useState('login');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  
-  const [identifier, setIdentifier] = useState(''); // Nickname veya E-posta
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [gradeLevel, setGradeLevel] = useState('11');
   const [section, setSection] = useState('A');
-  
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -23,16 +23,16 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
 
   const sectionOptions = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
 
     if (!identifier.trim() || !password.trim()) {
-      setError('Lütfen tüm zorunlu alanları doldurun.');
+      setError('Lütfen kullanıcı adı veya e-posta adresinizi ve şifrenizi girin.');
       return;
     }
 
-    if (role === 'student' && authMode === 'register') {
+    if (authMode === 'register') {
       if (!fullName.trim() || !email.trim()) {
         setError('Ad soyad ve e-posta adresi zorunludur.');
         return;
@@ -49,195 +49,101 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
 
     try {
       setLoading(true);
-      let user;
-      if (role === 'teacher') {
-        user = await loginWithNickname(identifier.trim(), password, 'teacher');
-      } else if (authMode === 'register') {
-        user = await registerStudentWithNickname(identifier.trim(), password, email.trim(), fullName.trim(), `${gradeLevel}-${section}`);
-      } else {
-        user = await loginWithNickname(identifier.trim(), password, 'student');
-      }
+      const user = authMode === 'register'
+        ? await registerStudentWithNickname(identifier.trim(), password, email.trim(), fullName.trim(), `${gradeLevel}-${section}`)
+        : await loginWithNickname(identifier.trim(), password);
       onLoginSuccess(user);
-    } catch (err) {
-      setError(err.message || 'İşlem başarısız oldu.');
+    } catch (submitError) {
+      setError(submitError.message || 'İşlem başarısız oldu. Lütfen tekrar deneyin.');
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
+  const handleForgotPassword = async (event) => {
+    event.preventDefault();
     setError('');
     setSuccess('');
     try {
       setLoading(true);
       await sendStudentPasswordReset(email);
       setSuccess('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.');
-    } catch (err) {
+    } catch (resetError) {
       const errorMessages = {
-        'auth/user-not-found': 'Bu e-posta Firebase Authentication hesabına bağlı değil. Eski nickname hesabınız varsa önce mevcut şifrenizle bir kez giriş yapınız.',
-        'auth/operation-not-allowed': 'Firebase Console üzerinden E-posta/Şifre giriş yöntemini etkinleştiriniz.',
-        'auth/invalid-email': 'Geçerli bir e-posta adresi giriniz.'
+        'auth/user-not-found': 'Bu e-posta Firebase Authentication hesabına bağlı değil. Eski kullanıcı hesabınız varsa mevcut şifrenizle bir kez giriş yapın.',
+        'auth/operation-not-allowed': 'Firebase Console üzerinden E-posta/Şifre giriş yöntemini etkinleştirin.',
+        'auth/invalid-email': 'Geçerli bir e-posta adresi girin.'
       };
-      setError(errorMessages[err.code] || err.message || 'Sıfırlama bağlantısı gönderilemedi. Lütfen tekrar deneyiniz.');
+      setError(errorMessages[resetError.code] || resetError.message || 'Sıfırlama bağlantısı gönderilemedi. Lütfen tekrar deneyin.');
     } finally {
       setLoading(false);
     }
   };
 
-  const selectRole = (selectedRole) => {
-    setRole(selectedRole);
-    setAuthMode('login');
+  const switchAuthMode = (mode) => {
+    setAuthMode(mode);
+    setIsForgotPassword(false);
     setError('');
-    setIdentifier('');
-    setPassword('');
+    setSuccess('');
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden selection:bg-cyan-500 selection:text-slate-950">
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="relative w-full max-w-xl my-6">
-        <div className="bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-cyan-950/40">
-          {onClose && (
-            <div className="flex justify-end -mb-2">
-              <button type="button" onClick={onClose} className="min-h-10 inline-flex items-center gap-1.5 px-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                <span>Ana Sayfaya Dön</span><X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-          
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-              <Atom className="w-3.5 h-3.5" />
-              {teacherProfile.portalBrand} • Fizik Yazılı Çalışma Portalı
-            </span>
+    <div className="relative isolate flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#030712] px-4 py-8 text-slate-100 selection:bg-sky-400 selection:text-slate-950 sm:px-8 lg:justify-end lg:px-[8vw]">
+      <div className="absolute inset-0 -z-20">
+        <img src="/banner.png" alt="" aria-hidden="true" className="h-full w-full object-cover object-[62%_center] opacity-55" />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,18,0.68)_0%,rgba(2,6,18,0.54)_48%,rgba(2,6,18,0.86)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_78%_50%,rgba(0,114,255,0.16),transparent_42%),linear-gradient(135deg,rgba(0,95,255,0.12),transparent_28%)]" />
+      <div className="pointer-events-none absolute -left-24 top-16 -z-10 h-72 w-72 rounded-full bg-blue-600/20 blur-[100px]" />
+
+      {onClose && <button type="button" onClick={onClose} aria-label="Giriş ekranını kapat" className="absolute right-4 top-4 z-20 rounded-full border border-white/15 bg-slate-950/50 p-2.5 text-slate-300 backdrop-blur transition hover:border-sky-400/50 hover:text-white sm:right-7 sm:top-7"><X className="h-5 w-5" /></button>}
+
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.78fr)] lg:gap-16">
+        <section className="hidden max-w-2xl lg:block">
+          <div className="mb-7 flex items-center gap-3 text-sky-300"><span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-400/40 bg-sky-500/10 shadow-[0_0_28px_rgba(0,168,255,0.24)]"><Atom className="h-7 w-7" /></span><span className="text-xs font-bold uppercase tracking-[0.3em]">YKS Fizik Eğitim Platformu</span></div>
+          <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-white xl:text-7xl">Mahir <span className="bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent">Hocam</span><span className="mt-2 block text-2xl font-semibold tracking-[0.34em] text-slate-200 xl:text-3xl">FİZİK DERSİ</span></h1>
+          <div className="mt-6 h-1 w-64 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-transparent shadow-[0_0_18px_rgba(0,168,255,0.6)]" />
+          <p className="mt-7 max-w-lg text-xl leading-relaxed text-slate-200 xl:text-2xl">“Öğrenirken Yanında,<br /><span className="font-semibold text-sky-300">Başarırken Destekçin.</span>”</p>
+        </section>
+
+        <section className="mx-auto w-full max-w-md rounded-[2rem] border border-sky-400/60 bg-[#030b1b]/85 p-6 shadow-[0_0_18px_rgba(0,145,255,0.18),0_0_65px_rgba(0,95,255,0.15)] backdrop-blur-2xl sm:p-9">
+          <div className="mb-6 text-center">
+            <span className="mx-auto mb-3 flex h-16 w-16 items-center justify-center text-sky-400 drop-shadow-[0_0_18px_rgba(0,168,255,0.75)]"><Atom className="h-16 w-16" strokeWidth={1.7} /></span>
+            <h2 className="text-4xl font-black tracking-tight text-white">{isForgotPassword ? 'Şifreni Sıfırla' : authMode === 'register' ? 'Kayıt Ol' : <>Giriş <span className="bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">Yap</span></>}</h2>
+            <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-slate-300">{isForgotPassword ? 'Hesabınıza bağlı e-posta adresini girin.' : authMode === 'register' ? 'Hesabını oluştur, Mahir Hocam ile çalışmaya başla.' : 'Hesabınıza giriş yaparak Mahir Hocam ile devam edin.'}</p>
           </div>
 
-          {/* Banner Image */}
-          <div className="w-full rounded-2xl overflow-hidden border border-slate-800/80 bg-[#070d18] shadow-lg p-2 mb-6 flex items-center justify-center">
-            <img src="/bannnee.jpg" alt="Mahir Hocam - Fizik Dersi" className="w-full h-auto object-contain object-center rounded-xl max-h-[140px]" />
-          </div>
-
-          {/* Role Selectors */}
-          {!isForgotPassword && <div className="mb-5 grid grid-cols-2 gap-2 bg-slate-950/80 p-1 rounded-2xl border border-slate-800">
-            <button type="button" onClick={() => selectRole('student')} className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${role === 'student' ? 'bg-cyan-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>
-              <GraduationCap className="w-4 h-4" /> Öğrenci Portalı
-            </button>
-            <button type="button" onClick={() => selectRole('teacher')} className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${role === 'teacher' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>
-              <ShieldCheck className="w-4 h-4" /> Mahir Şengün (Admin)
-            </button>
-          </div>}
-
-          {!isForgotPassword && role === 'student' && (
-            <div className="flex items-center justify-center gap-4 mb-5 text-xs font-semibold">
-              <button type="button" onClick={() => { setAuthMode('login'); setError(''); }} className={`pb-1 border-b-2 transition ${authMode === 'login' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400'}`}>Giriş Yap</button>
-              <span className="text-slate-600">•</span>
-              <button type="button" onClick={() => { setAuthMode('register'); setError(''); }} className={`pb-1 border-b-2 transition ${authMode === 'register' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400'}`}>Yeni Kayıt Ol</button>
-            </div>
-          )}
-
-          {notice && <div role="status" className="mb-4 p-3 text-xs bg-cyan-500/10 border border-cyan-500/25 text-cyan-200 rounded-xl">{notice}</div>}
-          {error && (
-            <div className="mb-4 p-3 text-xs bg-rose-500/15 border border-rose-500/30 text-rose-300 rounded-xl flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" /><span>{error}</span>
-            </div>
-          )}
-          {success && <div role="status" className="mb-4 p-3 text-xs bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-xl">{success}</div>}
+          {notice && <div role="status" className="mb-4 rounded-xl border border-sky-400/25 bg-sky-400/10 p-3 text-xs text-sky-100">{notice}</div>}
+          {error && <div role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-xs text-rose-200"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" /><span>{error}</span></div>}
+          {success && <div role="status" className="mb-4 flex items-start gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-xs text-emerald-200"><CheckCircle2 className="h-4 w-4 shrink-0" /><span>{success}</span></div>}
 
           <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="space-y-3.5">
-            {isForgotPassword ? (
-              <>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-cyan-400" />Hesabınıza kayıtlı e-posta adresi</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ogrenci@okul.k12.tr" autoComplete="email" className="w-full px-3.5 py-3 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" required />
-                </div>
-                <button type="submit" disabled={loading} className="w-full min-h-11 mt-3 py-3 px-6 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-white bg-gradient-to-r from-cyan-500 to-indigo-600 shadow-lg disabled:opacity-50">
-                  <span>{loading ? 'Gönderiliyor...' : 'Sıfırlama Bağlantısı Gönder'}</span><ArrowRight className="w-4 h-4" />
-                </button>
-                <button type="button" onClick={() => { setIsForgotPassword(false); setError(''); setSuccess(''); }} className="w-full min-h-10 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition">
-                  Giriş ekranına dön
-                </button>
-              </>
-            ) : (
-              <>
-            {authMode === 'register' && role === 'student' && (
-              <>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Adınız ve Soyadınız *</label>
-                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ahmet Yılmaz" className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" required />
-                </div>
+            {isForgotPassword ? <label className="block">
+              <span className="mb-2 block text-xs font-medium text-slate-300">Hesabınıza kayıtlı e-posta adresi</span>
+              <span className="flex min-h-14 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400 focus-within:shadow-[0_0_14px_rgba(0,168,255,0.16)]"><Mail className="h-5 w-5 shrink-0 text-slate-400" /><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ornek@eposta.com" autoComplete="email" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /></span>
+            </label> : <>
+              {authMode === 'register' && <>
+                <label className="block"><span className="sr-only">Adınız ve Soyadınız</span><span className="flex min-h-12 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400 focus-within:shadow-[0_0_14px_rgba(0,168,255,0.16)]"><UserRound className="h-5 w-5 shrink-0 text-slate-400" /><input type="text" value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Adınız ve Soyadınız" autoComplete="name" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /></span></label>
+                <label className="block"><span className="sr-only">E-posta adresi</span><span className="flex min-h-12 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400"><Mail className="h-5 w-5 shrink-0 text-slate-400" /><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="E-posta adresi" autoComplete="email" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /></span></label>
+                <div className="grid grid-cols-2 gap-3"><label className="block"><span className="sr-only">Sınıf seviyesi</span><select value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} className="min-h-12 w-full rounded-full border border-slate-500/70 bg-[#071327] px-4 text-sm text-slate-200 outline-none focus:border-sky-400">{['9', '10', '11', '12'].map((level) => <option key={level} value={level}>{level}. Sınıf</option>)}</select></label><label className="block"><span className="sr-only">Şube</span><select value={section} onChange={(event) => setSection(event.target.value)} className="min-h-12 w-full rounded-full border border-slate-500/70 bg-[#071327] px-4 text-sm text-slate-200 outline-none focus:border-sky-400">{sectionOptions.map((letter) => <option key={letter} value={letter}>{letter} Şubesi</option>)}</select></label></div>
+              </>}
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">E-posta Adresi * (Her e-posta ile 1 hesap)</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ogrenci@okul.k12.tr" className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" required />
-                </div>
+              <label className="block"><span className="sr-only">Kullanıcı adı veya e-posta</span><span className="flex min-h-14 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400 focus-within:shadow-[0_0_14px_rgba(0,168,255,0.16)]"><UserRound className="h-5 w-5 shrink-0 text-slate-400" /><input type="text" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="Kullanıcı Adı veya E-posta" autoComplete="username" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /></span></label>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Sınıf Seviyesi *</label>
-                    <select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100">
-                      {['9', '10', '11', '12'].map((level) => <option key={level} value={level} className="bg-slate-900">{level}. Sınıf</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Şube *</label>
-                    <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100">
-                      {sectionOptions.map((letter) => <option key={letter} value={letter} className="bg-slate-900">{letter} Şubesi</option>)}
-                    </select>
-                  </div>
-                </div>
-              </>
-            )}
+              <label className="block"><span className="sr-only">Şifre</span><span className="flex min-h-14 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400 focus-within:shadow-[0_0_14px_rgba(0,168,255,0.16)]"><LockKeyhole className="h-5 w-5 shrink-0 text-slate-400" /><input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Şifre" autoComplete={authMode === 'login' ? 'current-password' : 'new-password'} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /><button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'} className="shrink-0 text-slate-400 transition hover:text-sky-300">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button></span></label>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-cyan-400" />
-                {role === 'teacher' ? 'Admin Kullanıcı Adı *' : (authMode === 'register' ? 'Benzersiz Kullanıcı Adı (Nickname) *' : 'Kullanıcı Adı veya E-posta *')}
-              </label>
-              <input type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder={role === 'teacher' ? 'mahirsengun' : 'kullaniciadi'} autoComplete="username" className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" required />
-            </div>
+              {authMode === 'register' && <label className="block"><span className="sr-only">Şifre tekrar</span><span className="flex min-h-12 items-center gap-3 rounded-full border border-slate-500/70 bg-slate-950/45 px-4 transition focus-within:border-sky-400"><LockKeyhole className="h-5 w-5 shrink-0 text-slate-400" /><input type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Şifre tekrar" autoComplete="new-password" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400" required /></span></label>}
 
-            {authMode === 'login' && role === 'student' && (
-              <div className="flex justify-end -mt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail(identifier.includes('@') ? identifier : '');
-                    setIsForgotPassword(true);
-                    setError('');
-                    setSuccess('');
-                  }}
-                  className="min-h-10 px-2 text-xs font-semibold text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
-                >
-                  Şifremi Unuttum?
-                </button>
-              </div>
-            )}
+              {authMode === 'login' && <div className="-mt-1 flex justify-end"><button type="button" onClick={() => { setEmail(identifier.includes('@') ? identifier : ''); setIsForgotPassword(true); setError(''); setSuccess(''); }} className="min-h-9 px-2 text-xs font-medium text-sky-300 transition hover:text-sky-200">Şifreni mi unuttun?</button></div>}
+            </>}
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-indigo-400" />Şifre *</label>
-              <div className="relative">
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete={authMode === 'login' ? 'current-password' : 'new-password'} className="w-full px-3.5 py-2.5 pr-10 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
-              </div>
-            </div>
-
-            {authMode === 'register' && role === 'student' && (
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-indigo-400" />Şifre Tekrarı *</label>
-                <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" required />
-              </div>
-            )}
-
-            <button type="submit" disabled={loading} className={`w-full mt-3 py-3 px-6 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-white shadow-lg active:scale-[0.99] transition disabled:opacity-50 cursor-pointer ${role === 'teacher' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gradient-to-r from-cyan-500 to-indigo-600'}`}>
-              <span>{loading ? 'İşlem Yapılıyor...' : (role === 'teacher' ? 'Admin Paneline Giriş Yap' : (authMode === 'login' ? 'Portala Giriş Yap' : 'Kayıt Ol ve Giriş Yap'))}</span><ArrowRight className="w-4 h-4" />
-            </button>
-              </>
-            )}
+            <button type="submit" disabled={loading} className="flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600 px-5 text-sm font-bold text-white shadow-[0_0_28px_rgba(0,145,255,0.32)] transition hover:brightness-110 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60">{loading ? 'Lütfen bekleyin…' : isForgotPassword ? 'Sıfırlama Bağlantısı Gönder' : authMode === 'register' ? 'Kayıt Ol ve Giriş Yap' : 'Giriş Yap'} {!loading && <ArrowRight className="h-4 w-4" />}</button>
           </form>
-        </div>
-        <p className="text-center text-xs text-slate-500 mt-4">© 2026-2027 {teacherProfile.portalBrand} • {teacherProfile.officialName}</p>
+
+          <div className="mt-5 text-center text-xs text-slate-300">
+            {isForgotPassword ? <button type="button" onClick={() => { setIsForgotPassword(false); setError(''); setSuccess(''); }} className="min-h-9 px-2 font-medium text-sky-300 transition hover:text-sky-200">Giriş ekranına dön</button> : <>{authMode === 'login' ? 'Hesabın yok mu?' : 'Zaten hesabın var mı?'} <button type="button" onClick={() => switchAuthMode(authMode === 'login' ? 'register' : 'login')} className="ml-1 font-semibold text-sky-300 transition hover:text-sky-200">{authMode === 'login' ? 'Kayıt Ol' : 'Giriş Yap'}</button></>}
+          </div>
+          <p className="mt-6 text-center text-[10px] text-slate-500">© 2026-2027 {teacherProfile.portalBrand} • {teacherProfile.officialName}</p>
+        </section>
       </div>
     </div>
   );
