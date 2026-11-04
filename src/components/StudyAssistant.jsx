@@ -50,8 +50,11 @@ function getAssistantErrorMessage(error) {
   if (code === 'empty-response') {
     return 'Asistan bu kez yanıt oluşturamadı. Sorunu yeniden deneyebilir veya farklı şekilde ifade edebilirsin.';
   }
-  if (code.includes('not-found') || details.includes('not found') || error?.status === 404) {
+  if (code === 'model-not-found' || details.includes('not found')) {
     return 'Gemini modeli bulunamadı. Sunucu yapılandırmasını kontrol edip tekrar deneyiniz.';
+  }
+  if (error?.status === 404) {
+    return 'Vercel yapay zeka API rotası bulunamadı. api/assistant.js dosyasının dağıtıma dahil edildiğini kontrol edin.';
   }
   if (code.includes('resource-exhausted') || error?.status === 429 || details.includes('quota')) {
     return 'Asistan şu anda yoğun. Biraz bekleyip yeniden deneyebilirsin.';
