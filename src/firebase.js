@@ -500,6 +500,47 @@ export async function deleteAnnouncementFromFirestore(annId) {
   return true;
 }
 
+// Mahir Hocam Tube videolari
+export function subscribeToTubeVideos(callback) {
+  if (!db) {
+    callback([]);
+    return () => {};
+  }
+
+  try {
+    const videosQuery = query(collection(db, 'tube_videos'), orderBy('createdAt', 'desc'));
+    return onSnapshot(videosQuery, (snapshot) => {
+      callback(snapshot.docs.map((videoDoc) => ({ id: videoDoc.id, ...videoDoc.data() })));
+    }, (error) => {
+      console.error('Tube videolari alınamadı:', error);
+      callback([]);
+    });
+  } catch (error) {
+    console.error('Tube videolarına abone olunamadı:', error);
+    callback([]);
+    return () => {};
+  }
+}
+
+export async function addTubeVideoToFirestore(videoData) {
+  if (!db) throw new Error('Firestore bağlantısı kurulamadı.');
+
+  const payload = {
+    ...videoData,
+    author: teacherProfile.officialName,
+    createdAt: new Date().toISOString(),
+    timestamp: serverTimestamp()
+  };
+  const docRef = await addDoc(collection(db, 'tube_videos'), payload);
+  return { id: docRef.id, ...payload };
+}
+
+export async function deleteTubeVideoFromFirestore(videoId) {
+  if (!db) throw new Error('Firestore bağlantısı kurulamadı.');
+  await deleteDoc(doc(db, 'tube_videos', String(videoId)));
+  return true;
+}
+
 // ==========================================
 // İNTERAKTİF TEST YÖNETİMİ (Firestore)
 // ==========================================

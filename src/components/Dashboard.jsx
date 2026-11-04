@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import PdfCard from './PdfCard';
 import {
   FileText, PlusCircle, Bell, Clock, Sparkles,
-  Users, HelpCircle, Lock, Trash2, ArrowRight, Eye, ClipboardCheck
+  Users, HelpCircle, Lock, Trash2, ArrowRight, Eye, ClipboardCheck, PlayCircle
 } from 'lucide-react';
 import { teacherProfile } from '../data/teacherProfile';
+import { extractYouTubeId, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from '../utils/youtube';
 
 function safeText(value, fallback = '') {
   return typeof value === 'string' && value.trim() ? value : fallback;
@@ -32,6 +33,14 @@ function getCountdownParts(deadlineTime, now) {
   };
 }
 
+function getTubeVideoId(video) {
+  const existingId = safeText(video?.videoId);
+  if (/^[a-zA-Z0-9_-]{11}$/.test(existingId)) return existingId;
+  const existingEmbed = safeText(video?.embedUrl);
+  const source = safeText(video?.youtubeUrl || video?.driveUrl || existingEmbed);
+  return extractYouTubeId(source);
+}
+
 export default function Dashboard({
   user,
   pdfs = [],
@@ -43,6 +52,7 @@ export default function Dashboard({
   onStartTest,
   onOpenUploadPdf,
   onOpenCreateTest,
+  onOpenAddVideo,
   onTogglePdfLock,
   onDeletePdf,
   onDeleteTest,
@@ -52,12 +62,15 @@ export default function Dashboard({
   onOpenFormulas,
   onOpenExamTest,
   testResults = [],
-  logsCount = 0
+  logsCount = 0,
+  tubeVideos = [],
+  onDeleteTubeVideo
 }) {
   const isTeacher = user?.role === 'teacher';
   const [now, setNow] = useState(() => Date.now());
   const [rankingTestId, setRankingTestId] = useState('');
   const [rankingDetailId, setRankingDetailId] = useState('');
+  const [activeTubeVideoId, setActiveTubeVideoId] = useState('');
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -71,12 +84,27 @@ export default function Dashboard({
   const safeTests = Array.isArray(interactiveTests)
     ? interactiveTests.filter((test) => test && typeof test === 'object')
     : [];
+  const safeTubeVideos = Array.isArray(tubeVideos)
+    ? tubeVideos.filter((video) => video && typeof video === 'object')
+    : [];
   const latestAnnouncement = safeAnnouncements[0];
 
   return (
     <div className="w-full min-w-0 max-w-full min-h-screen bg-slate-950 text-slate-100 pb-24">
       <section className="relative overflow-hidden bg-gradient-to-b from-[#070d18] to-slate-950 border-b border-slate-800/80 pt-6 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
+          <div className="w-full rounded-2xl border border-rose-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/20 px-3 sm:px-5 py-3 flex items-center gap-3 sm:gap-4">
+            <img
+              src="/MahirHocam Physics Channel Emblem.png"
+              alt="Mahir Hocam Tube"
+              className="w-12 h-12 sm:w-16 sm:h-16 max-w-[22vw] shrink-0 rounded-xl object-contain"
+            />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs font-bold text-rose-400 uppercase tracking-[0.18em]">Mahir Hocam</p>
+              <h1 className="text-lg sm:text-2xl font-black text-white leading-tight truncate">Mahir Hocam Tube</h1>
+              <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">Fizik ders videoları tek yerde</p>
+            </div>
+          </div>
           {latestAnnouncement ? (
             <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-amber-950/20 backdrop-blur">
               <div
@@ -164,6 +192,12 @@ export default function Dashboard({
                     className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-purple-600 hover:bg-purple-500 transition flex items-center justify-center gap-2"
                   >
                     <FileText className="w-4 h-4" /> Yeni PDF Yükle
+                  </button>
+                  <button
+                    onClick={onOpenAddVideo}
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 transition flex items-center justify-center gap-2"
+                  >
+                    <PlayCircle className="w-4 h-4" /> Ders Videosu Ekle
                   </button>
                   <button
                     onClick={onOpenLogs}
@@ -449,6 +483,110 @@ export default function Dashboard({
           ) : (
             <div className="text-center py-10 bg-slate-900/40 border border-slate-800 rounded-2xl text-xs text-slate-500">
               Henüz yayınlanmış bir interaktif test bulunmuyor.
+            </div>
+          )}
+        </div>
+
+        {/* Mahir Hocam Tube */}
+        <div>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
+                <PlayCircle className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-white truncate">Ders Videoları - Mahir Hocam Tube</h2>
+                <p className="text-xs text-slate-400">{safeTubeVideos.length} video</p>
+              </div>
+            </div>
+            {isTeacher && (
+              <button
+                onClick={onOpenAddVideo}
+                className="shrink-0 px-3 py-2 rounded-xl text-xs font-bold bg-rose-500 text-white hover:bg-rose-400 transition flex items-center gap-1.5"
+              >
+                <PlusCircle className="w-3.5 h-3.5" /> Video Ekle
+              </button>
+            )}
+          </div>
+
+          {safeTubeVideos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {safeTubeVideos.map((video, index) => {
+                const tubeVideoId = getTubeVideoId(video);
+                const autoThumbnail = getYouTubeThumbnailUrl(tubeVideoId);
+                const tubeThumbnail = safeText(video.thumbnailUrl) || autoThumbnail;
+                const embedUrl = getYouTubeEmbedUrl(
+                  tubeVideoId || safeText(video.youtubeUrl) || safeText(video.embedUrl)
+                );
+                return (
+                <article key={video.id || index} className="min-w-0 rounded-2xl border border-slate-800 bg-slate-900/80 overflow-hidden">
+                  <div className="p-4 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-full px-2 py-1 mb-2">
+                        <PlayCircle className="w-3 h-3" /> {safeText(video.subject, 'Fizik Dersi')}
+                      </span>
+                      <h3 className="text-sm font-bold text-white break-words">{safeText(video.title, 'Ders Videosu')}</h3>
+                    </div>
+                    {isTeacher && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteTubeVideo?.(video.id)}
+                        className="p-2 shrink-0 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                        title="Videoyu sil"
+                        aria-label="Videoyu sil"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="px-3 pb-3">
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
+                      {activeTubeVideoId === String(video.id || index) && embedUrl ? (
+                        <iframe
+                          src={embedUrl}
+                          title={safeText(video.title, 'Ders videosu')}
+                          className="w-full h-full absolute inset-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          referrerPolicy="strict-origin-when-cross-origin"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setActiveTubeVideoId(String(video.id || index))}
+                          className="absolute inset-0 group w-full h-full cursor-pointer"
+                          aria-label={`${safeText(video.title, 'Dersi')} videoyu oynat`}
+                        >
+                          {tubeThumbnail ? (
+                            <img
+                              src={tubeThumbnail}
+                              alt={safeText(video.title, 'Video kapak fotoğrafı')}
+                              className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                              loading="lazy"
+                              onError={(event) => {
+                                if (autoThumbnail && event.currentTarget.src !== autoThumbnail) {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src = autoThumbnail;
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-950" />
+                          )}
+                          <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-600 text-white border border-white/30 shadow-2xl flex items-center justify-center group-hover:bg-rose-500 transition">
+                            <PlayCircle className="w-7 h-7 sm:w-8 sm:h-8 fill-white/10" />
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ); })}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-slate-900/40 border border-slate-800 rounded-2xl text-xs text-slate-500">
+              Henüz ders videosu eklenmedi.
             </div>
           )}
         </div>

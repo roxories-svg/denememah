@@ -12,6 +12,7 @@ import AccountSettingsModal from './components/AccountSettingsModal';
 import ProfileSettingsModal from './components/ProfileSettingsModal';
 import ExamTestModal from './components/ExamTestModal';
 import TeacherTestModal from './components/TeacherTestModal';
+import TeacherVideoModal from './components/TeacherVideoModal';
 import StudyAssistant from './components/StudyAssistant';
 import { 
   getCurrentSessionUser, 
@@ -26,7 +27,9 @@ import {
   subscribeToInteractiveTestResults,
   subscribeToInteractiveTests,
   addInteractiveTestToFirestore,
-  deleteInteractiveTestFromFirestore
+  deleteInteractiveTestFromFirestore,
+  subscribeToTubeVideos,
+  deleteTubeVideoFromFirestore
 } from './firebase';
 import { teacherProfile } from './data/teacherProfile';
 import { FileText, BellRing, Sparkles } from 'lucide-react';
@@ -44,6 +47,7 @@ export default function App() {
 
   // Real-time interactive tests stream (`interactive_tests` collection)
   const [interactiveTests, setInteractiveTests] = useState([]);
+  const [tubeVideos, setTubeVideos] = useState([]);
 
   // Real-time Student Login Logs (`login_logs` collection)
   const [loginLogs, setLoginLogs] = useState([]);
@@ -63,6 +67,7 @@ export default function App() {
   const [loginPrompt, setLoginPrompt] = useState('');
   const [isExamTestOpen, setIsExamTestOpen] = useState(false);
   const [isTeacherTestModalOpen, setIsTeacherTestModalOpen] = useState(false);
+  const [isTeacherVideoModalOpen, setIsTeacherVideoModalOpen] = useState(false);
   const [selectedInteractiveTest, setSelectedInteractiveTest] = useState(null);
   const [testActionError, setTestActionError] = useState('');
 
@@ -101,6 +106,15 @@ export default function App() {
       setInteractiveTests(Array.isArray(updatedTests) ? updatedTests : []);
     });
 
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToTubeVideos((updatedVideos) => {
+      setTubeVideos(Array.isArray(updatedVideos) ? updatedVideos : []);
+    });
     return () => {
       if (typeof unsubscribe === 'function') unsubscribe();
     };
@@ -216,6 +230,15 @@ export default function App() {
     }
   };
 
+  const handleDeleteTubeVideo = async (videoId) => {
+    try {
+      await deleteTubeVideoFromFirestore(videoId);
+    } catch (error) {
+      console.error(error);
+      setTestActionError('Video silinemedi. Lütfen tekrar deneyiniz.');
+    }
+  };
+
   const handleStartInteractiveTest = (test) => {
     if (!user) {
       setPendingAuthAction({ type: 'test', test });
@@ -287,6 +310,7 @@ export default function App() {
         onOpenFormulas={() => setIsFormulasOpen(true)}
         onOpenUploadPdf={() => setIsTeacherPdfModalOpen(true)}
         onOpenCreateAnnouncement={() => setIsTeacherAnnModalOpen(true)}
+        onOpenAddVideo={() => setIsTeacherVideoModalOpen(true)}
         onOpenLogs={() => setIsLogsModalOpen(true)}
         onOpenAccountSettings={handleProfileAction}
         onOpenExamTest={handleOpenDefaultExam}
@@ -307,6 +331,7 @@ export default function App() {
         }}
         onOpenUploadPdf={() => setIsTeacherPdfModalOpen(true)}
         onOpenCreateTest={() => setIsTeacherTestModalOpen(true)}
+        onOpenAddVideo={() => setIsTeacherVideoModalOpen(true)}
         onStartTest={handleStartInteractiveTest}
         onDeleteTest={handleDeleteInteractiveTest}
         onTogglePdfLock={handleToggleLock}
@@ -318,6 +343,8 @@ export default function App() {
         onOpenFormulas={() => setIsFormulasOpen(true)}
         logsCount={loginLogs.length}
         testResults={testResults}
+        tubeVideos={tubeVideos}
+        onDeleteTubeVideo={handleDeleteTubeVideo}
       />
 
       {/* PDF Viewer Modal */}
@@ -353,6 +380,14 @@ export default function App() {
           isOpen={isTeacherTestModalOpen}
           onClose={() => setIsTeacherTestModalOpen(false)}
           onTestCreated={handleCreateInteractiveTest}
+        />
+      )}
+
+      {isTeacher && (
+        <TeacherVideoModal
+          isOpen={isTeacherVideoModalOpen}
+          onClose={() => setIsTeacherVideoModalOpen(false)}
+          onVideoCreated={() => {}}
         />
       )}
 

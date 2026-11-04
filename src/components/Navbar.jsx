@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   User, LogOut, Bell, PlusCircle, BookOpen, ShieldCheck, 
-  FilePlus, Users, LogIn
+  FilePlus, Users, LogIn, PlayCircle
 } from 'lucide-react';
 import { teacherProfile } from '../data/teacherProfile';
 
@@ -12,6 +12,7 @@ export default function Navbar({
   onOpenFormulas, 
   onOpenUploadPdf,
   onOpenCreateAnnouncement,
+  onOpenAddVideo,
   onOpenLogs,
   onOpenAccountSettings,
   logsCount = 0
@@ -41,6 +42,16 @@ export default function Navbar({
           
           {isTeacher && (
             <>
+              <button
+                onClick={onOpenAddVideo}
+                title="Ders Videosu Ekle"
+                aria-label="Ders Videosu Ekle"
+                className="min-h-10 flex items-center justify-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 border border-rose-400/30 transition cursor-pointer"
+              >
+                <PlayCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Ders Videosu Ekle</span>
+              </button>
+
               <button
                 onClick={onOpenLogs}
                 title="Giriş Takibi"
