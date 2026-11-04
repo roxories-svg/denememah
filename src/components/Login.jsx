@@ -88,16 +88,16 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
 
   return (
     <div className="relative isolate flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#030712] px-4 py-8 text-slate-100 selection:bg-sky-400 selection:text-slate-950 sm:px-8 lg:justify-end lg:px-[8vw]">
-      <div className="absolute inset-0 -z-20">
+      <div className="absolute inset-0 z-0">
         <img src="/banner.png" alt="" aria-hidden="true" className="h-full w-full object-cover object-[62%_center] opacity-55" />
       </div>
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,18,0.68)_0%,rgba(2,6,18,0.54)_48%,rgba(2,6,18,0.86)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_78%_50%,rgba(0,114,255,0.16),transparent_42%),linear-gradient(135deg,rgba(0,95,255,0.12),transparent_28%)]" />
-      <div className="pointer-events-none absolute -left-24 top-16 -z-10 h-72 w-72 rounded-full bg-blue-600/20 blur-[100px]" />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(2,6,18,0.68)_0%,rgba(2,6,18,0.54)_48%,rgba(2,6,18,0.86)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_78%_50%,rgba(0,114,255,0.16),transparent_42%),linear-gradient(135deg,rgba(0,95,255,0.12),transparent_28%)]" />
+      <div className="pointer-events-none absolute -left-24 top-16 z-[1] h-72 w-72 rounded-full bg-blue-600/20 blur-[100px]" />
 
-      {onClose && <button type="button" onClick={onClose} aria-label="Giriş ekranını kapat" className="absolute right-4 top-4 z-20 rounded-full border border-white/15 bg-slate-950/50 p-2.5 text-slate-300 backdrop-blur transition hover:border-sky-400/50 hover:text-white sm:right-7 sm:top-7"><X className="h-5 w-5" /></button>}
+      {onClose && <button type="button" onClick={onClose} aria-label="Giriş ekranını kapat" className="absolute right-4 top-4 z-30 rounded-full border border-white/15 bg-slate-950/50 p-2.5 text-slate-300 backdrop-blur transition hover:border-sky-400/50 hover:text-white sm:right-7 sm:top-7"><X className="h-5 w-5" /></button>}
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.78fr)] lg:gap-16">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.78fr)] lg:gap-16">
         <section className="hidden max-w-2xl lg:block">
           <div className="mb-7 flex items-center gap-3 text-sky-300"><span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-400/40 bg-sky-500/10 shadow-[0_0_28px_rgba(0,168,255,0.24)]"><Atom className="h-7 w-7" /></span><span className="text-xs font-bold uppercase tracking-[0.3em]">YKS Fizik Eğitim Platformu</span></div>
           <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-white xl:text-7xl">Mahir <span className="bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent">Hocam</span><span className="mt-2 block text-2xl font-semibold tracking-[0.34em] text-slate-200 xl:text-3xl">FİZİK DERSİ</span></h1>
