@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import PdfCard from './PdfCard';
 import {
   FileText, PlusCircle, Bell, Clock, Sparkles,
-  Users, HelpCircle, Lock, Trash2, ArrowRight, Eye, ClipboardCheck, PlayCircle
+  Users, HelpCircle, Lock, Trash2, ArrowRight, Eye, ClipboardCheck, PlayCircle,
+  GraduationCap, Headphones, Star, Magnet, Waves, Atom, Triangle, MoveRight, BookOpen
 } from 'lucide-react';
-import { teacherProfile } from '../data/teacherProfile';
 import { extractYouTubeId, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from '../utils/youtube';
 
 function safeText(value, fallback = '') {
@@ -90,137 +90,80 @@ export default function Dashboard({
   const latestAnnouncement = safeAnnouncements[0];
 
   return (
-    <div className="w-full min-w-0 max-w-full min-h-screen bg-slate-950 text-slate-100 pb-24">
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#070d18] to-slate-950 border-b border-slate-800/80 pt-6 pb-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="w-full rounded-2xl border border-rose-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/20 px-3 sm:px-5 py-3 flex items-center gap-3 sm:gap-4">
-            <img
-              src="/MahirHocam Physics Channel Emblem.png"
-              alt="Mahir Hocam Tube"
-              className="w-12 h-12 sm:w-16 sm:h-16 max-w-[22vw] shrink-0 rounded-xl object-contain"
-            />
-            <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs font-bold text-rose-400 uppercase tracking-[0.18em]">Mahir Hocam</p>
-              <h1 className="text-lg sm:text-2xl font-black text-white leading-tight truncate">Mahir Hocam Tube</h1>
-              <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">Fizik ders videoları tek yerde</p>
+    <div className="min-h-screen w-full min-w-0 max-w-full overflow-hidden bg-[#05070d] pb-24 text-slate-100">
+      {latestAnnouncement && <div className="mx-auto mt-4 flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <button type="button" onClick={onOpenAnnouncements} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-sky-400/20 bg-slate-900/60 px-4 py-3 text-left backdrop-blur-md transition hover:border-sky-400/40">
+          <Bell className="h-4 w-4 shrink-0 text-sky-300" />
+          <span className="min-w-0"><span className="mr-2 text-[10px] font-bold uppercase tracking-wider text-sky-300">{safeText(latestAnnouncement.badge, 'Duyuru')}</span><span className="block truncate text-xs text-slate-200 sm:inline">{safeText(latestAnnouncement.title, 'Yeni duyuru')}</span></span>
+          <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-500" />
+        </button>
+        {isTeacher && <button type="button" onClick={onOpenCreateAnnouncement} aria-label="Duyuru ekle" className="rounded-xl border border-sky-400/20 bg-sky-400/10 p-3 text-sky-300"><PlusCircle className="h-4 w-4" /></button>}
+      </div>}
+
+      <section id="home" className="relative isolate scroll-mt-24 overflow-hidden bg-[radial-gradient(ellipse_at_75%_30%,rgba(0,114,255,0.16),transparent_38%),linear-gradient(125deg,#0b0f19_0%,#05070d_62%,#08101e_100%)]">
+        <div className="pointer-events-none absolute -left-36 top-20 h-80 w-80 rounded-full bg-sky-500/10 blur-[110px]" />
+        <div className="mx-auto grid max-w-7xl items-center gap-4 px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:min-h-[490px] lg:grid-cols-[0.95fr_1.05fr] lg:gap-0 lg:px-8 lg:pb-14">
+          <div className="relative z-10 max-w-2xl py-2 lg:py-8">
+            <span className="inline-flex items-center gap-2 rounded-full border border-sky-400/25 bg-sky-400/[0.07] px-3.5 py-2 text-[10px] font-bold tracking-[0.2em] text-sky-200 sm:text-xs"><span className="h-2 w-2 animate-pulse rounded-full bg-sky-400 shadow-[0_0_12px_#00a8ff]" />YKS’YE GİDEN YOLDA</span>
+            <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">Mahir Hocam <span className="bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent">FİZİK DERSİ</span></h1>
+            <p className="mt-5 max-w-lg text-base text-slate-300 sm:text-lg">Öğrenirken Yanında, <span className="font-semibold text-white">Başarırken Destekçin.</span></p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#dersler" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-6 text-sm font-bold text-slate-950 shadow-[0_0_28px_rgba(0,168,255,0.28)] transition hover:-translate-y-0.5 hover:brightness-110">Derslere Başla <MoveRight className="h-4 w-4" /></a>
+              <a href="#kaynaklar" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-black/20 px-6 text-sm font-semibold text-slate-200 transition hover:border-sky-400/50 hover:text-white"><BookOpen className="h-4 w-4" />Kaynakları Keşfet</a>
             </div>
+            <div className="mt-8 flex items-center gap-3 text-xs text-slate-400"><span className="flex h-8 w-5 items-start justify-center rounded-full border border-slate-500/70 pt-1"><span className="h-1.5 w-0.5 rounded-full bg-sky-300" /></span>Fiziği birlikte keşfetmeye başla</div>
           </div>
-          {latestAnnouncement ? (
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-amber-950/20 backdrop-blur">
-              <div
-                onClick={onOpenAnnouncements}
-                className="flex items-center gap-3 cursor-pointer overflow-hidden flex-1 group"
-              >
-                <div className="p-2 rounded-xl bg-amber-500/15 text-amber-400 shrink-0">
-                  <Bell className="w-4 h-4" />
-                </div>
-                <div className="overflow-hidden">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      {safeText(latestAnnouncement.badge, 'Güncel Duyuru')}
-                    </span>
-                    <span className="text-xs text-slate-400 hidden sm:inline">
-                      {safeText(latestAnnouncement.date)}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-semibold text-white group-hover:text-amber-300 transition-colors truncate mt-0.5">
-                    {safeText(latestAnnouncement.title, 'Yeni duyuru')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {isTeacher && (
-                  <button
-                    onClick={onOpenCreateAnnouncement}
-                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition cursor-pointer flex items-center gap-1"
-                  >
-                    <PlusCircle className="w-3.5 h-3.5" />
-                    <span>Duyuru Ekle</span>
-                  </button>
-                )}
-                <button
-                  onClick={onOpenAnnouncements}
-                  className="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800 transition cursor-pointer"
-                >
-                  Tümünü Gör
-                </button>
-              </div>
-            </div>
-          ) : isTeacher ? (
-            <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3 text-xs">
-              <span className="text-slate-400">Firestore'da henüz yayınlanmış bir duyuru bulunmuyor.</span>
-              <button
-                onClick={onOpenCreateAnnouncement}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 transition flex items-center gap-1 cursor-pointer"
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span>İlk Duyuruyu Ekle</span>
-              </button>
-            </div>
-          ) : null}
-
-          {/* Üst Kart Alanı */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-center">
-            <div className="lg:col-span-2 p-6 rounded-3xl bg-slate-900/70 border border-slate-800 backdrop-blur space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> {isTeacher ? 'Yönetici Paneli' : 'Öğrenci Portalı'}
-                </span>
-                <span className="text-xs text-slate-400">
-                  {isTeacher ? teacherProfile.officialName : safeText(user?.displayName, 'Öğrenci')}
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-300 italic border-l-2 border-cyan-500/50 pl-3">
-                "{teacherProfile.welcomeMessage}"
-              </p>
-            </div>
-
-            {/* Hızlı Aksiyonlar */}
-            <div className="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 space-y-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Yönetim Aksiyonları</span>
-              {isTeacher ? (
-                <>
-                  <button
-                    onClick={onOpenCreateTest}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition flex items-center justify-center gap-2"
-                  >
-                    <PlusCircle className="w-4 h-4" /> İnteraktif Test Oluştur
-                  </button>
-                  <button
-                    onClick={onOpenUploadPdf}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-purple-600 hover:bg-purple-500 transition flex items-center justify-center gap-2"
-                  >
-                    <FileText className="w-4 h-4" /> Yeni PDF Yükle
-                  </button>
-                  <button
-                    onClick={onOpenAddVideo}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 transition flex items-center justify-center gap-2"
-                  >
-                    <PlayCircle className="w-4 h-4" /> Ders Videosu Ekle
-                  </button>
-                  <button
-                    onClick={onOpenLogs}
-                    className="w-full py-2 px-3 rounded-xl font-semibold text-xs text-cyan-300 bg-cyan-950/30 hover:bg-cyan-900/40 border border-cyan-500/30 transition flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Users className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Öğrenci Giriş Takibi ({Number.isFinite(logsCount) ? logsCount : 0} Log)</span>
-                  </button>
-                </>
-              ) : (
-                <div className="text-xs text-slate-400 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span>Süresi dolmayan testleri ve PDF'leri zamanında çözünüz.</span>
-                </div>
-              )}
-            </div>
-
+          <div className="relative mx-auto w-full max-w-2xl lg:absolute lg:inset-y-0 lg:right-0 lg:my-0 lg:w-[58%] lg:max-w-none">
+            <div className="absolute inset-8 rounded-full bg-blue-600/20 blur-[90px]" />
+            <img src="/banner.png" alt="Mahir Hocam fizik dersi bannerı" className="relative h-full min-h-56 w-full rounded-3xl border border-sky-400/10 object-cover object-[70%_center] shadow-[0_25px_80px_rgba(0,40,120,0.28)] sm:min-h-80 lg:absolute lg:inset-0 lg:rounded-none lg:border-0 lg:shadow-none" />
+            <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#080d17] via-[#080d17]/55 to-transparent lg:block" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-24 bg-gradient-to-t from-[#05070d] to-transparent lg:block" />
           </div>
         </div>
       </section>
 
+      <section id="hakkimizda" className="relative z-10 mx-auto -mt-1 grid max-w-7xl grid-cols-1 overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/60 px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-md sm:grid-cols-2 lg:-mt-8 lg:grid-cols-4 lg:px-2" aria-label="Eğitim özellikleri">
+        {[
+          { title: 'YKS Odaklı', subtitle: 'Sınavlara En Doğru Hazırlık', icon: GraduationCap },
+          { title: 'Deneyimli Eğitmen', subtitle: 'Yılların Tecrübesiyle', icon: Users },
+          { title: '%100 Destek', subtitle: 'Her Adımda Yanınızdayız', icon: Star },
+          { title: 'Güçlü Öğrenci Topluluğu', subtitle: 'Birlikte Daha Güçlüyüz', icon: Headphones }
+        ].map(({ title, subtitle, icon: Icon }, index) => <div key={title} className={`flex items-center gap-3 px-3 py-4 sm:px-5 lg:px-6 ${index > 0 ? 'border-t border-slate-700/70 sm:border-t-0 lg:border-l' : ''} ${index === 1 ? 'sm:border-l' : ''} ${index === 2 ? 'lg:border-l' : ''}`}>
+          <Icon className="h-8 w-8 shrink-0 text-sky-400 drop-shadow-[0_0_10px_rgba(0,168,255,0.5)]" />
+          <div><h2 className="text-xs font-bold text-white sm:text-sm">{title}</h2><p className="mt-1 text-[10px] text-slate-400 sm:text-xs">{subtitle}</p></div>
+        </div>)}
+      </section>
+
+      <section id="dersler" className="mx-auto grid max-w-7xl scroll-mt-28 gap-8 px-4 pt-16 sm:px-6 lg:grid-cols-[0.8fr_1.6fr] lg:items-center lg:gap-14 lg:px-8 lg:pt-24">
+        <div>
+          <span className="inline-flex items-center gap-2 text-xs font-semibold text-sky-300"><span className="h-px w-6 bg-sky-400" />DERSLERİMİZ</span>
+          <h2 className="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl">Fiziği Anlamanın <span className="block bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">En Kolay Yolu</span></h2>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">Mahir Hocam ile fizik dersini sadece öğrenmekle kalmayacak, sınavda fark yaratacaksın.</p>
+          <a href="#tube-videos" className="mt-6 inline-flex items-center gap-2 rounded-full border border-sky-400/50 px-5 py-2.5 text-xs font-bold text-sky-200 transition hover:bg-sky-400/10">Tüm Dersleri Gör <ArrowRight className="h-4 w-4" /></a>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            { title: 'Manyetizma', subtitle: 'Konu Anlatımı & Soru Çözümleri', icon: Magnet },
+            { title: 'Dalga Mekaniği', subtitle: 'Özet + Örnek Sorular', icon: Waves },
+            { title: 'Modern Fizik', subtitle: 'Konu Anlatımı & Taktikler', icon: Atom },
+            { title: 'Optik', subtitle: 'Detaylı Anlatım & Soru Çözümleri', icon: Triangle }
+          ].map(({ title, subtitle, icon: Icon }) => <a key={title} href="#tube-videos" className="group flex min-h-24 items-center gap-4 rounded-2xl border border-slate-700/70 bg-slate-900/60 p-4 backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:border-cyan-500/50 hover:bg-slate-900/90 hover:shadow-[0_0_20px_rgba(0,168,255,0.3)] sm:gap-5 sm:px-5">
+            <Icon className="h-9 w-9 shrink-0 text-sky-400 transition group-hover:scale-110 group-hover:text-cyan-300" />
+            <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-white">{title}</span><span className="mt-1 block text-xs leading-relaxed text-slate-400">{subtitle}</span></span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-800 text-slate-200 transition group-hover:bg-sky-500 group-hover:text-slate-950"><ArrowRight className="h-4 w-4" /></span>
+          </a>)}
+        </div>
+      </section>
+
+      {isTeacher && <section className="mx-auto mt-10 flex max-w-7xl flex-wrap items-center gap-2 px-4 sm:px-6 lg:px-8">
+        <span className="mr-2 text-xs font-semibold text-slate-500">Yönetim:</span>
+        <button type="button" onClick={onOpenCreateTest} className="rounded-xl border border-sky-400/20 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/50"><PlusCircle className="mr-1 inline h-3.5 w-3.5" />Test Oluştur</button>
+        <button type="button" onClick={onOpenUploadPdf} className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40"><FileText className="mr-1 inline h-3.5 w-3.5" />PDF Yükle</button>
+        <button type="button" onClick={onOpenLogs} className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-sky-400/40"><Users className="mr-1 inline h-3.5 w-3.5" />Öğrenci Takibi ({Number.isFinite(logsCount) ? logsCount : 0})</button>
+      </section>}
+
       {/* 6 Güçlü Modül - Ana Sayfa Kart Izgarası */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <section className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8" aria-label="Portal özellikleri">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { title: 'İnteraktif Fizik Testleri', description: 'Süreli testler ve anlık optik değerlendirme.', icon: HelpCircle, color: 'cyan', action: onOpenExamTest },
@@ -229,7 +172,7 @@ export default function Dashboard({
             { title: 'Konu Analizli Optik Form', description: 'Doğru, yanlış ve boşlarını konu bazında analiz et.', icon: ClipboardCheck, color: 'amber', action: onOpenExamTest },
             { title: 'Mahir Hoca İle Canlı Takip', description: 'Öğrenci gelişimini ve sınav performansını takip et.', icon: Bell, color: 'rose', action: onOpenLogs },
             { title: 'Formül & Özet Kütüphanesi', description: 'Fizik formülleri ve kısa konu özetleri tek yerde.', icon: FileText, color: 'blue', action: onOpenFormulas }
-          ].map(({ title, description, icon: Icon, color, action, soon }) => {
+          ].map(({ title, description, icon: Icon, color, soon }) => {
             const colors = {
               cyan: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-300 group-hover:border-cyan-400/50',
               emerald: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300 group-hover:border-emerald-400/50',
@@ -260,8 +203,8 @@ export default function Dashboard({
       </section>
 
       {/* İnteraktif Testler Bölümü */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-10">
-        <div>
+      <main className="mx-auto mt-14 max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
+        <div id="interaktif-testler" className="scroll-mt-28">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/25">
@@ -488,7 +431,7 @@ export default function Dashboard({
         </div>
 
         {/* Mahir Hocam Tube */}
-        <div>
+        <div id="tube-videos" className="scroll-mt-28">
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
@@ -592,7 +535,7 @@ export default function Dashboard({
         </div>
 
         {/* PDF Liste Alanı */}
-        <div>
+        <div id="kaynaklar" className="scroll-mt-28">
           <h2 className="text-lg font-bold text-white mb-4">Mahir Hocam Yazılı Çalışma PDF'leri ({safePdfs.length})</h2>
           {safePdfs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

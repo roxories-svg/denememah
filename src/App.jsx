@@ -263,7 +263,7 @@ export default function App() {
   const isTeacher = user?.role === 'teacher';
 
   return (
-    <div className="w-full min-w-0 max-w-full min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative overflow-x-clip">
+    <div className="relative flex min-h-screen w-full min-w-0 max-w-full flex-col overflow-x-clip bg-[#05070d] font-sans text-slate-100">
       
       {/* Realtime Toast Notification when Mahir Hoca uploads a new PDF */}
       {newPdfAlert && (
@@ -455,7 +455,7 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
+      <footer id="iletisim" className="mt-auto scroll-mt-28 border-t border-white/10 bg-[#05070d] py-8 text-center text-xs text-slate-500">
         <p>© 2026-2027 {teacherProfile.portalBrand} • {teacherProfile.officialName} • Firebase Auth & Realtime Firestore</p>
         <p className="mt-1 text-slate-600">{teacherProfile.school} • Fizik Zümre Koordinatörlüğü</p>
       </footer>
