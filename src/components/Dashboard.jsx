@@ -115,7 +115,7 @@ export default function Dashboard({
           </div>
           <div className="pointer-events-none absolute inset-0 mx-auto w-full max-w-none lg:inset-y-0 lg:right-0 lg:left-auto lg:my-0 lg:w-[58%]">
             <div className="absolute inset-8 rounded-full bg-blue-600/20 blur-[90px]" />
-            <img src="/banner.png" alt="Mahir Hocam fizik dersi bannerı" className="absolute inset-0 h-full w-full object-cover object-[30%_center] lg:object-[70%_center]" />
+            <img src="/banner.png" alt="Mahir Hocam fizik dersi bannerı" className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/85 to-[#05070d]/25 lg:from-[#080d17] lg:via-[#080d17]/55 lg:to-transparent" />
             <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#05070d] to-transparent" />
           </div>
