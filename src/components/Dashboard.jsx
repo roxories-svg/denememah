@@ -113,11 +113,11 @@ export default function Dashboard({
             </div>
             <div className="mt-8 flex items-center gap-3 text-xs text-slate-400"><span className="flex h-8 w-5 items-start justify-center rounded-full border border-slate-500/70 pt-1"><span className="h-1.5 w-0.5 rounded-full bg-sky-300" /></span>Fiziği birlikte keşfetmeye başla</div>
           </div>
-          <div className="relative order-first mx-auto w-full max-w-2xl lg:order-none lg:absolute lg:inset-y-0 lg:right-0 lg:my-0 lg:w-[58%] lg:max-w-none">
+          <div className="pointer-events-none absolute inset-0 mx-auto w-full max-w-none lg:inset-y-0 lg:right-0 lg:left-auto lg:my-0 lg:w-[58%]">
             <div className="absolute inset-8 rounded-full bg-blue-600/20 blur-[90px]" />
-            <img src="/banner.png" alt="Mahir Hocam fizik dersi bannerı" className="relative h-full min-h-56 w-full rounded-3xl border border-sky-400/10 object-cover object-[70%_center] shadow-[0_25px_80px_rgba(0,40,120,0.28)] sm:min-h-80 lg:absolute lg:inset-0 lg:rounded-none lg:border-0 lg:shadow-none" />
-            <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#080d17] via-[#080d17]/55 to-transparent lg:block" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-24 bg-gradient-to-t from-[#05070d] to-transparent lg:block" />
+            <img src="/banner.png" alt="Mahir Hocam fizik dersi bannerı" className="absolute inset-0 h-full w-full object-cover object-[70%_center] lg:object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/85 to-[#05070d]/25 lg:from-[#080d17] lg:via-[#080d17]/55 lg:to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#05070d] to-transparent" />
           </div>
         </div>
       </section>
