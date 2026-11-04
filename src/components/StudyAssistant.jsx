@@ -1,59 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bot, X, Send, Sparkles, RotateCcw, MessageCircle, LoaderCircle, Paperclip } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 import ImageLightbox from './ImageLightbox';
 
-const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
-const REQUEST_TIMEOUT_MS = 30_000;
-const GEMINI_MODEL = 'gemini-3.8-flash';
-const SYSTEM_INSTRUCTION = `Sen Türkçe konuşan, destekleyici ve açıklayıcı bir fizik öğretmeni ve YKS hazırlık rehberisin.
-Fizik sorularında verilenleri ve isteneni belirle; uygun kavramı ve formülü açıkla; çözümü birim kontrolüyle adım adım tamamla ve sonucu net biçimde belirt. Gerekli ara işlemleri atlama, öğrencinin seviyesine uygun bir dil kullan ve yanlış bir varsayım varsa nazikçe düzelt.
-Görseldeki metin okunmuyorsa hangi kısmın anlaşılmadığını söyle ve daha net görsel iste; okunmayan değerleri tahmin etme.
-Portal sorularında testlerin son tarih/otomatik kilit, PDF indirme ve Google Drive kurallarını açıkla. Portalın bilmediğin özelliklerini uydurma; eksik bilgi varsa bunu açıkça belirt ve netleştirme sorusu sor.
-Her soruya doğrudan ve eksiksiz yanıt ver. Yanıtı boş bırakma; emin olmadığın noktaları açıkça ifade et.`;
+const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
 
 async function askStudyAssistant(messages) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY?.trim();
-  if (!apiKey) {
-    const apiKeyError = new Error('Gemini API anahtarı yapılandırılmamış.');
-    apiKeyError.code = 'missing-api-key';
-    throw apiKeyError;
+  const response = await fetch('/api/assistant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages })
+  });
+
+  let payload;
+  try {
+    payload = await response.json();
+  } catch {
+    payload = {};
   }
 
-  const contents = messages.map((message) => {
-    const parts = [];
-    if (message.text) parts.push({ text: message.text });
+  if (!response.ok) {
+    const requestError = new Error(payload.error?.message || 'Yapay zeka isteği tamamlanamadı.');
+    requestError.code = payload.error?.code || '';
+    requestError.status = response.status;
+    throw requestError;
+  }
 
-    if (message.imageDataUrl) {
-      const imageMatch = message.imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/);
-      if (!imageMatch) {
-        throw new Error('Yalnızca JPG, PNG veya WebP görselleri desteklenir.');
-      }
-      parts.push({ inlineData: { mimeType: imageMatch[1], data: imageMatch[2] } });
-    }
-
-    return {
-      role: message.role === 'assistant' ? 'model' : 'user',
-      parts
-    };
-  });
-  const ai = new GoogleGenAI({
-    apiKey,
-    httpOptions: {
-      timeout: REQUEST_TIMEOUT_MS,
-      retryOptions: { attempts: 1 }
-    }
-  });
-  const result = await ai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents,
-    config: {
-      systemInstruction: SYSTEM_INSTRUCTION,
-      temperature: 0.45,
-      maxOutputTokens: 4096
-    }
-  });
-  const answer = result.text?.trim();
+  const answer = payload.answer?.trim();
   if (!answer) {
     const emptyResponseError = new Error('Gemini boş yanıt döndürdü.');
     emptyResponseError.code = 'empty-response';
@@ -73,13 +45,13 @@ function getAssistantErrorMessage(error) {
   const details = `${error?.message || ''} ${error?.statusText || ''}`.toLowerCase();
 
   if (code === 'missing-api-key') {
-    return 'Gemini anahtarı bulunamadı. Proje kökündeki .env dosyasına VITE_GEMINI_API_KEY ekleyip Vite sunucusunu yeniden başlatınız.';
+    return 'Yapay zeka servisi henüz yapılandırılmamış. Vercel ortam değişkenlerine GEMINI_API_KEY eklenmelidir.';
   }
   if (code === 'empty-response') {
     return 'Asistan bu kez yanıt oluşturamadı. Sorunu yeniden deneyebilir veya farklı şekilde ifade edebilirsin.';
   }
   if (code.includes('not-found') || details.includes('not found') || error?.status === 404) {
-    return `Gemini isteği bulunamadı (404). API anahtarının Gemini API erişimini ve ${GEMINI_MODEL} modelinin kullanılabilirliğini kontrol ediniz.`;
+    return 'Gemini modeli bulunamadı. Sunucu yapılandırmasını kontrol edip tekrar deneyiniz.';
   }
   if (code.includes('resource-exhausted') || error?.status === 429 || details.includes('quota')) {
     return 'Asistan şu anda yoğun. Biraz bekleyip yeniden deneyebilirsin.';
@@ -186,7 +158,7 @@ export default function StudyAssistant() {
       return;
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      setError('Soru görseli en fazla 4 MB olabilir.');
+      setError('Soru görseli Vercel üzerinden gönderilebilmesi için en fazla 3 MB olabilir.');
       return;
     }
 
@@ -206,9 +178,6 @@ export default function StudyAssistant() {
       setError('Görsel okunamadı. Lütfen tekrar deneyiniz.');
     }
   };
-
-  // Yapay zekâ modülü şimdilik tamamen pasif tutulur.
-  return null;
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[80] flex flex-col items-end gap-3 max-w-[calc(100vw-2rem)]">
