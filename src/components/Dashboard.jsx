@@ -105,7 +105,7 @@ export default function Dashboard({
         <div className="mx-auto grid max-w-7xl items-center gap-4 px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:min-h-[490px] lg:grid-cols-[0.95fr_1.05fr] lg:gap-0 lg:px-8 lg:pb-14">
           <div className="relative z-10 max-w-2xl py-2 lg:py-8">
             <span className="inline-flex items-center gap-2 rounded-full border border-sky-400/25 bg-sky-400/[0.07] px-3.5 py-2 text-[10px] font-bold tracking-[0.2em] text-sky-200 sm:text-xs"><span className="h-2 w-2 animate-pulse rounded-full bg-sky-400 shadow-[0_0_12px_#00a8ff]" />YKS’YE GİDEN YOLDA</span>
-            <h1 className="mt-5 text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">Mahir Hocam <span className="bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent">FİZİK DERSİ</span></h1>
+            <h1 className="mt-5 max-w-[72%] text-2xl font-black leading-[1.05] tracking-tight text-white sm:max-w-none sm:text-5xl lg:text-6xl xl:text-7xl"><span className="block sm:inline">Mahir Hocam</span>{' '}<span className="block bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent sm:inline">FİZİK DERSİ</span></h1>
             <p className="mt-5 max-w-lg text-base text-slate-300 sm:text-lg">Öğrenirken Yanında, <span className="font-semibold text-white">Başarırken Destekçin.</span></p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#dersler" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 px-6 text-sm font-bold text-slate-950 shadow-[0_0_28px_rgba(0,168,255,0.28)] transition hover:-translate-y-0.5 hover:brightness-110">Derslere Başla <MoveRight className="h-4 w-4" /></a>
