@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Atom, Bell, BookOpen, FilePlus, LogIn, LogOut, Menu, PlayCircle,
+  Bell, BookOpen, FilePlus, LogIn, LogOut, Menu, PlayCircle,
   PlusCircle, Search, ShieldCheck, User, Users, X
 } from 'lucide-react';
 import { teacherProfile } from '../data/teacherProfile';
@@ -50,7 +50,7 @@ export default function Navbar({
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#05070d]/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <a href="#home" className="flex shrink-0 items-center gap-3" aria-label="Mahir Hocam ana sayfa">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-sky-400/30 bg-sky-400/10 text-sky-300 shadow-[0_0_22px_rgba(0,168,255,0.16)]"><Atom className="h-6 w-6" /></span>
+          <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-sky-400/30 bg-sky-400/10 shadow-[0_0_22px_rgba(0,168,255,0.16)]"><img src="/favicon.png" alt="Mahir Hocam logosu" className="h-full w-full object-cover" /></span>
           <span className="leading-tight"><span className="block text-sm font-black tracking-wide text-white sm:text-base">Mahir Hocam</span><span className="text-[10px] tracking-[0.28em] text-slate-400">FİZİK DERSİ</span></span>
         </a>
 

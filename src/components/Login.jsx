@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  AlertCircle, ArrowRight, Atom, CheckCircle2, Eye, EyeOff,
+  AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff,
   LockKeyhole, Mail, UserRound, X
 } from 'lucide-react';
 import { teacherProfile } from '../data/teacherProfile';
@@ -99,7 +99,7 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.78fr)] lg:gap-16">
         <section className="hidden max-w-2xl lg:block">
-          <div className="mb-7 flex items-center gap-3 text-sky-300"><span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-400/40 bg-sky-500/10 shadow-[0_0_28px_rgba(0,168,255,0.24)]"><Atom className="h-7 w-7" /></span><span className="text-xs font-bold uppercase tracking-[0.3em]">YKS Fizik Eğitim Platformu</span></div>
+          <div className="mb-7 flex items-center gap-3 text-sky-300"><span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-sky-400/40 bg-sky-500/10 shadow-[0_0_28px_rgba(0,168,255,0.24)]"><img src="/favicon.png" alt="Mahir Hocam logosu" className="h-full w-full object-cover" /></span><span className="text-xs font-bold uppercase tracking-[0.3em]">YKS Fizik Eğitim Platformu</span></div>
           <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-white xl:text-7xl">Mahir <span className="bg-gradient-to-r from-sky-300 via-[#00a8ff] to-blue-500 bg-clip-text text-transparent">Hocam</span><span className="mt-2 block text-2xl font-semibold tracking-[0.34em] text-slate-200 xl:text-3xl">FİZİK DERSİ</span></h1>
           <div className="mt-6 h-1 w-64 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-transparent shadow-[0_0_18px_rgba(0,168,255,0.6)]" />
           <p className="mt-7 max-w-lg text-xl leading-relaxed text-slate-200 xl:text-2xl">“Öğrenirken Yanında,<br /><span className="font-semibold text-sky-300">Başarırken Destekçin.</span>”</p>
@@ -107,7 +107,7 @@ export default function Login({ onLoginSuccess, onClose, notice = '' }) {
 
         <section className="mx-auto w-full max-w-md rounded-[2rem] border border-sky-400/60 bg-[#030b1b]/85 p-6 shadow-[0_0_18px_rgba(0,145,255,0.18),0_0_65px_rgba(0,95,255,0.15)] backdrop-blur-2xl sm:p-9">
           <div className="mb-6 text-center">
-            <span className="mx-auto mb-3 flex h-16 w-16 items-center justify-center text-sky-400 drop-shadow-[0_0_18px_rgba(0,168,255,0.75)]"><Atom className="h-16 w-16" strokeWidth={1.7} /></span>
+            <span className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl drop-shadow-[0_0_18px_rgba(0,168,255,0.75)]"><img src="/favicon.png" alt="Mahir Hocam logosu" className="h-full w-full object-cover" /></span>
             <h2 className="text-4xl font-black tracking-tight text-white">{isForgotPassword ? 'Şifreni Sıfırla' : authMode === 'register' ? 'Kayıt Ol' : <>Giriş <span className="bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">Yap</span></>}</h2>
             <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-slate-300">{isForgotPassword ? 'Hesabınıza bağlı e-posta adresini girin.' : authMode === 'register' ? 'Hesabını oluştur, Mahir Hocam ile çalışmaya başla.' : 'Hesabınıza giriş yaparak Mahir Hocam ile devam edin.'}</p>
           </div>
