@@ -1,95 +1,97 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import assistantHandler from './api/assistant.js'
 
-const MAX_API_BODY_BYTES = 4.5 * 1024 * 1024
-
-function localAssistantApiPlugin(apiKey) {
+function pwaServiceWorkerPlugin() {
   return {
-    name: 'local-assistant-api',
-    configureServer(server) {
-      if (apiKey && !process.env.GEMINI_API_KEY) {
-        process.env.GEMINI_API_KEY = apiKey
+    name: 'mahir-hocam-pwa-service-worker',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const bundledAssets = Object.entries(bundle)
+        .filter(([fileName, asset]) => asset.type === 'chunk' || (asset.type === 'asset' && fileName.endsWith('.css')))
+        .map(([fileName]) => `/${fileName}`)
+      const precacheUrls = [...new Set([
+        '/',
+        '/index.html',
+        '/manifest.json',
+        '/favicon.png',
+        '/apple-touch-icon.png',
+        '/app-icon-192.png',
+        '/app-icon-512.png',
+        '/app-icon-maskable-512.png',
+        '/banner.png',
+        ...bundledAssets
+      ])]
+
+      const serviceWorker = `
+const CACHE_NAME = 'mahir-hocam-pwa-v1'
+const PRECACHE_URLS = ${JSON.stringify(precacheUrls)}
+const PRECACHED_PATHS = new Set(PRECACHE_URLS.map((path) => new URL(path, self.location.origin).pathname))
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  )
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys
+        .filter((key) => key.startsWith('mahir-hocam-pwa-') && key !== CACHE_NAME)
+        .map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  )
+})
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request
+  const url = new URL(request.url)
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone()
+            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy))
+          }
+          return response
+        })
+        .catch(async () => (await caches.match(request)) || (await caches.match('/index.html')) || Response.error())
+    )
+    return
+  }
+
+  const isStaticAsset = PRECACHED_PATHS.has(url.pathname) || ['script', 'style', 'image', 'font'].includes(request.destination)
+  if (!isStaticAsset) return
+
+  event.respondWith(
+    caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+      if (response.ok) {
+        const copy = response.clone()
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
       }
+      return response
+    }))
+  )
+})
+`
 
-      server.middlewares.use('/api/assistant', (req, res) => {
-        if (req.method !== 'POST') {
-          req.body = undefined
-          return invokeAssistant()
-        }
-
-        const contentLength = Number(req.headers['content-length']) || 0
-        if (contentLength > MAX_API_BODY_BYTES) {
-          res.statusCode = 413
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ error: { code: 'payload-too-large' } }))
-          return
-        }
-
-        const chunks = []
-        let bodySize = 0
-        let oversized = false
-        req.on('data', (chunk) => {
-          if (oversized) return
-          bodySize += chunk.length
-          if (bodySize > MAX_API_BODY_BYTES) {
-            oversized = true
-            res.statusCode = 413
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ error: { code: 'payload-too-large' } }))
-            return
-          }
-          chunks.push(chunk)
-        })
-        req.on('end', () => {
-          if (res.writableEnded || oversized) return
-          try {
-            req.body = JSON.parse(Buffer.concat(chunks).toString('utf8'))
-          } catch {
-            res.statusCode = 400
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ error: { code: 'invalid-request' } }))
-            return
-          }
-          invokeAssistant()
-        })
-
-        async function invokeAssistant() {
-          res.status = (status) => {
-            res.statusCode = status
-            return res
-          }
-          res.json = (payload) => {
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify(payload))
-            return res
-          }
-
-          try {
-            await assistantHandler(req, res)
-          } catch (error) {
-            console.error('Local assistant API failed:', error?.message)
-            if (!res.writableEnded) {
-              res.statusCode = 500
-              res.json({ error: { code: 'provider-error' } })
-            }
-          }
-        }
-      })
+      this.emitFile({ type: 'asset', fileName: 'sw.js', source: serviceWorker })
     }
   }
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  return {
-    plugins: [
-      react(),
-      tailwindcss(),
-      localAssistantApiPlugin(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY)
-    ],
-    base: '/', // Vercel ve statik barındırma servisleri için kök dizin tanımı
-  }
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+    pwaServiceWorkerPlugin(),
+  ],
+  base: '/', // Vercel ve statik barındırma servisleri için kök dizin tanımı
 })
